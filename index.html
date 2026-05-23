@@ -3,8 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>The No-FOMO Trader</title>
-  <meta name="description" content="A focused pre-market brief combining market context, SPY/QQQ technical levels, and trading discipline for everyday traders.">
+  <title>The No-FOMO Trader | Market Prep Without Chase Trades</title>
+  <meta name="description" content="A daily learning brief and market readiness tool for everyday traders who want context, technical levels, and trading discipline without hype or signal promises.">
+  <meta name="theme-color" content="#10251f">
+  <link rel="canonical" href="https://britncguy-dot.github.io/">
+  <meta property="og:title" content="The No-FOMO Trader">
+  <meta property="og:description" content="Daily market learning, technical levels, and trading discipline for everyday traders.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://britncguy-dot.github.io/">
+  <meta name="twitter:card" content="summary">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -12,9 +19,10 @@
     <a class="brand" href="#top">The No-FOMO Trader</a>
     <nav aria-label="Main navigation">
       <a href="#brief">Brief</a>
-      <a href="#sample">Sample</a>
+      <a href="#meter">Meter</a>
+      <a href="#member-tools">Members</a>
+      <a href="resources.html">Resources</a>
       <a href="#pricing">Pricing</a>
-      <a href="#faq">FAQ</a>
       <a href="disclaimer.html">Disclaimer</a>
     </nav>
   </header>
@@ -22,16 +30,22 @@
   <main id="top">
     <section class="hero">
       <div class="hero-copy">
-        <p class="eyebrow">Pre-market discipline for everyday traders</p>
+        <p class="eyebrow">Daily market learning for everyday traders</p>
         <h1>The No-FOMO Trader</h1>
         <p class="lead">
-          A focused pre-market brief combining market context, SPY/QQQ technical levels, and trading discipline before the market speeds up.
+          A daily learning brief combining market context, SPY/QQQ technical levels, and trading discipline before the market speeds up.
         </p>
         <div class="actions">
           <a class="button primary" href="#launch">Join the 14-day Founding Series</a>
-          <a class="button secondary" href="#sample">Read a sample</a>
+          <a class="button secondary" href="member-dashboard.html">Open member dashboard</a>
         </div>
-        <p class="microcopy">No hype. No signal promises. Just context, levels, and a calmer plan.</p>
+        <p class="microcopy">Learn the market without chasing it. No hype. No signal promises.</p>
+        <div class="proof-strip" aria-label="Launch features">
+          <span>14-day free launch</span>
+          <span>Market readiness tools</span>
+          <span>Daily discipline brief</span>
+          <span>Education only</span>
+        </div>
       </div>
 
       <aside class="terminal-card" aria-label="Pre-market brief preview">
@@ -70,7 +84,7 @@
         <p class="eyebrow">The daily promise</p>
         <h2>One clean plan beats ten emotional reactions.</h2>
         <p>
-          The No-FOMO Trader is built for retail traders who want a calmer morning process. It is not a buy/sell alert service. It is a preparation tool.
+          The No-FOMO Trader is built for retail traders who want a calmer learning process. It is not a buy/sell alert service. It is a daily tool for context, levels, discipline, and journaling.
         </p>
       </div>
       <div class="three-column">
@@ -85,6 +99,263 @@
         <article>
           <h3>Trader Discipline</h3>
           <p>No-FOMO rules and journal prompts to reduce chasing, revenge trades, oversizing, and emotional entries.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="meter" class="meter-section">
+      <div class="section-copy">
+        <p class="eyebrow">Interactive tool</p>
+        <h2>No-FOMO Market Meter</h2>
+        <p>
+          A quick pre-trade check for market health and personal discipline. It is designed to slow the decision down before the chart starts pulling on emotion.
+        </p>
+      </div>
+
+      <div class="meter-layout">
+        <form class="meter-panel" aria-label="No-FOMO Market Meter controls">
+          <div class="slider-row">
+            <label for="trend">Trend clarity <span id="trendValue">6</span></label>
+            <input id="trend" type="range" min="0" max="10" value="6">
+          </div>
+          <div class="slider-row">
+            <label for="levels">Price respecting key levels <span id="levelsValue">5</span></label>
+            <input id="levels" type="range" min="0" max="10" value="5">
+          </div>
+          <div class="slider-row">
+            <label for="volatility">Volatility pressure <span id="volatilityValue">4</span></label>
+            <input id="volatility" type="range" min="0" max="10" value="4">
+          </div>
+          <div class="slider-row">
+            <label for="macro">News and macro pressure <span id="macroValue">6</span></label>
+            <input id="macro" type="range" min="0" max="10" value="6">
+          </div>
+          <div class="slider-row">
+            <label for="fomo">My urge to chase <span id="fomoValue">3</span></label>
+            <input id="fomo" type="range" min="0" max="10" value="3">
+          </div>
+        </form>
+
+        <aside class="meter-output" aria-live="polite">
+          <div class="dial-wrap" aria-hidden="true">
+            <div class="dial-face">
+              <div class="dial-band"></div>
+              <div class="dial-ticks">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <div id="meterNeedle" class="meter-needle"></div>
+              <div class="needle-cap"></div>
+            </div>
+            <div class="dial-labels">
+              <span>Red</span>
+              <span>Yellow</span>
+              <span>Green</span>
+            </div>
+          </div>
+          <div class="meter-score">
+            <span id="meterScore">54</span>
+            <strong id="meterState">Yellow: Be selective</strong>
+          </div>
+          <div class="meter-gauge member-gauge" aria-hidden="true">
+            <span id="meterFill"></span>
+          </div>
+          <p id="meterGuidance">
+            Conditions are mixed. Trade less, wait for confirmation, and require a clean risk point.
+          </p>
+          <div class="meter-note">
+            Learning tool only. This is not a signal, alert, or recommendation to buy or sell.
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="conditions-section">
+      <div>
+        <p class="eyebrow">Market conditions first</p>
+        <h2>A good setup still needs the right environment.</h2>
+        <p class="body-large">
+          The No-FOMO process teaches members to judge the market before judging the trade. A clean-looking entry can still be low quality if the broader conditions are messy.
+        </p>
+      </div>
+      <div class="condition-board">
+        <article>
+          <span>01</span>
+          <h3>Environment</h3>
+          <p>Trend, range, volatility, news pressure, and whether price is respecting key levels.</p>
+        </article>
+        <article>
+          <span>02</span>
+          <h3>Setup</h3>
+          <p>Pullback, reclaim, failed breakout, range rejection, or another pattern with defined risk.</p>
+        </article>
+        <article>
+          <span>03</span>
+          <h3>Discipline</h3>
+          <p>Entry planned before the move, stop respected, position size controlled, emotion checked.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="member-tools" class="member-tools">
+      <div class="section-copy">
+        <p class="eyebrow">Member dashboard</p>
+        <h2>Free teaches the habit. Member tools build the process.</h2>
+        <p>
+          The free meter helps traders slow down before chasing. The member dashboard will go deeper with market readiness, setup quality, and discipline tracking.
+        </p>
+        <a class="button member-button" href="member-dashboard.html">Open member dashboard</a>
+      </div>
+
+      <div class="member-meter" aria-label="Member Market Readiness Meter preview">
+        <div class="member-meter-output" aria-live="polite">
+          <div class="member-meter-top">
+            <span>Market Readiness Console</span>
+            <strong>Member</strong>
+          </div>
+          <div class="system-readout">
+            <span>Composite Model</span>
+            <strong id="memberCode">MR-057</strong>
+          </div>
+          <div class="dial-wrap member-dial" aria-hidden="true">
+            <div class="dial-face">
+              <div class="dial-band"></div>
+              <div class="dial-ticks">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <div id="memberNeedle" class="meter-needle"></div>
+              <div class="needle-cap"></div>
+            </div>
+            <div class="dial-labels">
+              <span>Protect</span>
+              <span>Select</span>
+              <span>Ready</span>
+            </div>
+          </div>
+          <div class="meter-score member-score">
+            <span id="memberScore">57</span>
+            <strong id="memberState">Selective: Wait for proof</strong>
+          </div>
+          <div class="meter-gauge member-gauge" aria-hidden="true">
+            <span id="memberFill"></span>
+          </div>
+          <p id="memberGuidance">
+            Conditions are not bad, but the trade still needs a cleaner setup, defined risk, and emotional control.
+          </p>
+          <div class="score-pills">
+            <div>
+              <span>Structure</span>
+              <strong id="structureScore">53</strong>
+            </div>
+            <div>
+              <span>Setup</span>
+              <strong id="setupReadScore">47</strong>
+            </div>
+            <div>
+              <span>Risk Plan</span>
+              <strong id="riskPlanScore">71</strong>
+            </div>
+            <div>
+              <span>Pressure Drag</span>
+              <strong id="pressureScore">48</strong>
+            </div>
+          </div>
+        </div>
+
+        <form class="member-meter-controls">
+          <div class="control-header">
+            <span>Readiness Inputs</span>
+            <strong>Weighted</strong>
+          </div>
+          <div class="slider-row dark-slider">
+            <label for="marketStructure">Market structure <span id="marketStructureValue">6</span></label>
+            <input id="marketStructure" type="range" min="0" max="10" value="6">
+          </div>
+          <div class="slider-row dark-slider">
+            <label for="levelClarity">Key level clarity <span id="levelClarityValue">4</span></label>
+            <input id="levelClarity" type="range" min="0" max="10" value="4">
+          </div>
+          <div class="slider-row dark-slider">
+            <label for="setupQuality">Setup quality <span id="setupQualityValue">5</span></label>
+            <input id="setupQuality" type="range" min="0" max="10" value="5">
+          </div>
+          <div class="slider-row dark-slider">
+            <label for="riskDefined">Risk defined <span id="riskDefinedValue">7</span></label>
+            <input id="riskDefined" type="range" min="0" max="10" value="7">
+          </div>
+          <div class="slider-row dark-slider">
+            <label for="chasePressure">Chase pressure <span id="chasePressureValue">4</span></label>
+            <input id="chasePressure" type="range" min="0" max="10" value="4">
+          </div>
+          <div class="slider-row dark-slider">
+            <label for="newsPressure">News / volatility pressure <span id="newsPressureValue">6</span></label>
+            <input id="newsPressure" type="range" min="0" max="10" value="6">
+          </div>
+        </form>
+      </div>
+
+      <div class="pro-dashboard">
+        <article class="dashboard-panel">
+          <h3>Setup Quality Score</h3>
+          <p>Rate whether a trade idea has trend alignment, a clean pullback, defined risk, and a real invalidation point.</p>
+        </article>
+
+        <article class="dashboard-panel">
+          <h3>Chase Risk Check</h3>
+          <p>Score the emotional side: late entry pressure, revenge-trade urge, oversizing risk, and fear of missing out.</p>
+        </article>
+
+        <article class="dashboard-panel">
+          <h3>Trade Readiness Checklist</h3>
+          <p>Entry, stop, target, risk amount, reason for trade, and what proves the idea wrong before the order goes in.</p>
+        </article>
+      </div>
+
+      <div class="resource-strip">
+        <div>
+          <p class="eyebrow">Member downloads</p>
+          <h3>Small resources that make the daily habit easier.</h3>
+        </div>
+        <ul>
+          <li>Weekly review worksheet</li>
+          <li>SPY / QQQ level map template</li>
+          <li>No-FOMO rules card</li>
+          <li>Trade journal scorecard</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="clean-review-section">
+      <div class="section-copy">
+        <p class="eyebrow">Member feature</p>
+        <h2>Clean Trade Review rewards the clearest process.</h2>
+        <p>
+          The best trade review is not always the biggest winner. Members will learn to grade the decision: market conditions, setup quality, risk control, and emotional discipline.
+        </p>
+      </div>
+      <div class="review-grid">
+        <article>
+          <h3>Market Conditions</h3>
+          <p>Did the trade match the environment, or did the trader force a setup into chop?</p>
+        </article>
+        <article>
+          <h3>Defined Risk</h3>
+          <p>Was the stop clear before entry, and was the loss acceptable before the order went in?</p>
+        </article>
+        <article>
+          <h3>No Chase Entry</h3>
+          <p>Did the trader wait for confirmation, or did fear of missing out take the wheel?</p>
+        </article>
+        <article>
+          <h3>Honest Journal</h3>
+          <p>Did the review capture what actually happened, not just whether the trade made money?</p>
         </article>
       </div>
     </section>
@@ -180,7 +451,7 @@
         <article class="featured">
           <h3>Founding Member</h3>
           <p class="price">$50/year</p>
-          <p>Early supporter rate for daily briefs, weekly reviews, setup study notes, and journal worksheets.</p>
+          <p>Early supporter rate for daily briefs, weekly reviews, setup study notes, Clean Trade Review, and member resources.</p>
         </article>
         <article>
           <h3>Standard</h3>
@@ -212,6 +483,10 @@
           <summary>When does paid content start?</summary>
           <p>After the free Founding Series proves useful. The first goal is trust, consistency, and a repeatable format.</p>
         </details>
+        <details>
+          <summary>Do you offer refunds?</summary>
+          <p>When paid memberships open, first-time subscribers can request a refund within 7 days of payment. After that, members can cancel anytime to stop future renewals. Billing errors or duplicate charges will be handled fairly.</p>
+        </details>
       </div>
     </section>
 
@@ -220,10 +495,13 @@
         <p class="eyebrow">Start here</p>
         <h2>Join the free launch list.</h2>
         <p>
-          The live email form will connect after the newsletter account is created. This static site is ready to publish for free and connect to Substack, beehiiv, or another newsletter platform.
+          The live email form will connect when the email platform is ready. The first launch opens with free educational briefs and market-readiness tools.
         </p>
       </div>
-      <span class="button disabled" aria-disabled="true">Signup opens after approval</span>
+      <div class="launch-actions">
+        <a class="button secondary" href="resources.html">View free resources</a>
+        <span class="button disabled" aria-disabled="true">Launch list opens soon</span>
+      </div>
     </section>
   </main>
 
@@ -235,5 +513,6 @@
       <a href="privacy.html">Privacy</a>
     </div>
   </footer>
+  <script src="script.js"></script>
 </body>
 </html>
