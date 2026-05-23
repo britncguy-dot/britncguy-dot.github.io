@@ -21,6 +21,7 @@
       <a href="#brief">Brief</a>
       <a href="#meter">Meter</a>
       <a href="#member-tools">Members</a>
+      <a href="today.html">Today</a>
       <a href="resources.html">Resources</a>
       <a href="#pricing">Pricing</a>
       <a href="disclaimer.html">Disclaimer</a>
@@ -38,6 +39,7 @@
         <div class="actions">
           <a class="button primary" href="#launch">Join the 14-day Founding Series</a>
           <a class="button secondary" href="member-dashboard.html">Open member dashboard</a>
+          <a class="button secondary" href="today.html">Read today's brief</a>
         </div>
         <p class="microcopy">Learn the market without chasing it. No hype. No signal promises.</p>
         <div class="proof-strip" aria-label="Launch features">
@@ -99,6 +101,36 @@
         <article>
           <h3>Trader Discipline</h3>
           <p>No-FOMO rules and journal prompts to reduce chasing, revenge trades, oversizing, and emotional entries.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="start-path">
+      <div class="section-copy">
+        <p class="eyebrow">Start here</p>
+        <h2>Three moves before the first trade.</h2>
+        <p>
+          The site is built to give traders one calm path: read the environment, score the conditions, then write the plan before money is at risk.
+        </p>
+      </div>
+      <div class="three-column">
+        <article>
+          <span class="step-tag">01</span>
+          <h3>Read Today's Brief</h3>
+          <p>Start with one plain-English market lesson and a discipline rule for the day.</p>
+          <a class="text-link" href="today.html">Open the sample brief</a>
+        </article>
+        <article>
+          <span class="step-tag">02</span>
+          <h3>Run The Meter</h3>
+          <p>Score the market and your own urge to chase before you study a setup.</p>
+          <a class="text-link" href="#meter">Use the free meter</a>
+        </article>
+        <article>
+          <span class="step-tag">03</span>
+          <h3>Build The Plan</h3>
+          <p>Use the resources and member preview to define risk before entry.</p>
+          <a class="text-link" href="resources.html">Get the worksheets</a>
         </article>
       </div>
     </section>
@@ -171,6 +203,21 @@
           </div>
         </aside>
       </div>
+      <div class="meter-method">
+        <div>
+          <p class="eyebrow">How the meter works</p>
+          <h3>Manual inputs, disciplined output.</h3>
+          <p>
+            The free meter does not pull live market data yet. It is a learning tool that turns your own read of trend, levels, pressure, and chase risk into a calmer readiness score.
+          </p>
+        </div>
+        <ul>
+          <li><strong>Trend clarity and key levels</strong> raise the score when the chart has structure.</li>
+          <li><strong>Volatility and news pressure</strong> lower the score when conditions are harder to trust.</li>
+          <li><strong>Urge to chase</strong> lowers the score because emotion is part of trade quality.</li>
+          <li><strong>Yellow is useful.</strong> It means be selective, not scared.</li>
+        </ul>
+      </div>
     </section>
 
     <section class="conditions-section">
@@ -202,10 +249,10 @@
 
     <section id="member-tools" class="member-tools">
       <div class="section-copy">
-        <p class="eyebrow">Member dashboard</p>
+        <p class="eyebrow">Paid member preview</p>
         <h2>Free teaches the habit. Member tools build the process.</h2>
         <p>
-          The free meter helps traders slow down before chasing. The member dashboard will go deeper with market readiness, setup quality, and discipline tracking.
+          The free meter helps traders slow down before chasing. The member dashboard preview shows the deeper workflow planned for paid members: market readiness, setup quality, risk planning, and trade review.
         </p>
         <a class="button member-button" href="member-dashboard.html">Open member dashboard</a>
       </div>
@@ -214,7 +261,7 @@
         <div class="member-meter-output" aria-live="polite">
           <div class="member-meter-top">
             <span>Market Readiness Console</span>
-            <strong>Member</strong>
+            <strong>Preview</strong>
           </div>
           <div class="system-readout">
             <span>Composite Model</span>
@@ -390,6 +437,7 @@
         <p>
           A sample from the Founding Series. The point is not to predict every move. The point is to trade with a cleaner mind.
         </p>
+        <a class="button secondary" href="today.html">Open the full sample brief</a>
       </div>
       <article class="sample-issue">
         <div class="issue-header">
@@ -431,6 +479,7 @@
         <li><span>03</span> The clean pullback is the everyday trader's friend.</li>
         <li><span>04</span> The middle of the range is where plans get messy.</li>
         <li><span>05</span> Your best trade may be the one you refuse.</li>
+        <li><span>06</span> Weekend review: grade the decision, not just the result.</li>
       </ol>
     </section>
 
@@ -495,13 +544,18 @@
         <p class="eyebrow">Start here</p>
         <h2>Join the free launch list.</h2>
         <p>
-          The live email form will connect when the email platform is ready. The first launch opens with free educational briefs and market-readiness tools.
+          The launch list is the next business connection point. The site is ready for Substack, beehiiv, Formspree, or another email platform before the first public push.
         </p>
       </div>
-      <div class="launch-actions">
-        <a class="button secondary" href="resources.html">View free resources</a>
-        <span class="button disabled" aria-disabled="true">Launch list opens soon</span>
-      </div>
+      <form class="launch-form" data-signup-form>
+        <label for="launchEmail">Email address</label>
+        <div>
+          <input id="launchEmail" name="email" type="email" placeholder="you@example.com" autocomplete="email">
+          <button class="button primary" type="submit">Request launch notice</button>
+        </div>
+        <p data-signup-message>The email platform is being connected. Until then, use the free brief and resources below.</p>
+        <a class="text-link" href="resources.html">View free resources</a>
+      </form>
     </section>
   </main>
 

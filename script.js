@@ -38,6 +38,8 @@ const ticketChecks = typeof document.querySelectorAll === "function"
   : [];
 const ticketScoreElement = document.getElementById("ticketScore");
 const ticketGuidanceElement = document.getElementById("ticketGuidance");
+const signupForm = document.querySelector("[data-signup-form]");
+const signupMessage = document.querySelector("[data-signup-message]");
 
 function hasElements(items) {
   return items.every(Boolean);
@@ -393,6 +395,13 @@ memberMeterInputs.forEach(({ id }) => {
 ticketChecks.forEach((input) => {
   input.addEventListener("change", updateTicketScore);
 });
+
+if (signupForm && signupMessage) {
+  signupForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    signupMessage.textContent = "Almost there. The email platform still needs to be connected before this can collect addresses.";
+  });
+}
 
 bootMeter();
 bootMemberMeter();
