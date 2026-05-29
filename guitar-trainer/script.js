@@ -2,6 +2,13 @@ const CONFIG = {
   paymentUrl: "https://brittle342.gumroad.com/l/fretflow-trainer",
   contactEmail: "fretflowtrainer@outlook.com",
   priceLabel: "$9",
+  accessSalt: "fretflow-2026-founding-gate-v1",
+  accessDigest: [
+    "8a40f825d358b4a44594515b5380133e",
+    "3dca4f956819601aafcb746e499a1652",
+  ].join(""),
+  maxAccessAttempts: 5,
+  accessLockMinutes: 15,
 };
 
 const NOTES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
@@ -84,8 +91,24 @@ const CHORD_TRIVIA = [
   { tones: ["D", "F", "A", "C"], answer: "Dm7", choices: ["Dm7", "D7", "Dmaj7"] },
   { tones: ["B", "D", "F", "A"], answer: "Bm7b5", choices: ["Bm7b5", "Bmaj7", "B7"] },
 ];
+const PROGRESS_KEY = "fretFlowPracticeProgress";
+const ACCESS_KEY = "fretFlowFoundingAccess";
+const ACCESS_ATTEMPT_KEY = "fretFlowAccessAttempts";
+const DEMO_SETTINGS = {
+  mode: "progression",
+  key: "G",
+  progression: "1 6m 4 5",
+  progressionBlock: "middle",
+  presetId: "gospel",
+  selectedStrings: ["D", "G", "B", "highE"],
+};
 
 const els = {
+  accessForm: document.getElementById("accessForm"),
+  accessCode: document.getElementById("accessCode"),
+  accessStatus: document.getElementById("accessStatus"),
+  accessHelp: document.getElementById("accessHelp"),
+  buyAccessButton: document.getElementById("buyAccessButton"),
   modeTabs: document.querySelectorAll(".mode-tab"),
   modePanels: document.querySelectorAll(".mode-panel"),
   keySelect: document.getElementById("keySelect"),
@@ -118,6 +141,11 @@ const els = {
   practiceQueue: document.getElementById("practiceQueue"),
   dailyCopy: document.getElementById("dailyCopy"),
   sessionScore: document.getElementById("sessionScore"),
+  progressToday: document.getElementById("progressToday"),
+  progressHint: document.getElementById("progressHint"),
+  progressStreak: document.getElementById("progressStreak"),
+  progressSessions: document.getElementById("progressSessions"),
+  progressChart: document.getElementById("progressChart"),
   checks: document.querySelectorAll("[data-check]"),
   buyButton: document.getElementById("buyButton"),
   paymentStatus: document.getElementById("paymentStatus"),
@@ -152,6 +180,7 @@ let state = {
 };
 let audioContext;
 let transitionTimers = [];
+let accessUnlocked = false;
 let labState = {
   noteTarget: "G",
   chordTriviaIndex: 0,
@@ -160,6 +189,136 @@ let labState = {
 function normalizeMode(mode, allowLab = false) {
   const modes = allowLab ? ["progression", "pentatonic", "chordtones", "notefinder"] : ["progression", "pentatonic", "chordtones"];
   return modes.includes(mode) ? mode : "progression";
+}
+
+function normalizeAccessCode(value) {
+  return String(value || "").trim().toUpperCase();
+}
+
+async function codeDigest(value) {
+  const normalized = normalizeAccessCode(value);
+  if (!window.crypto?.subtle) return "";
+  const bytes = new TextEncoder().encode(`${CONFIG.accessSalt}:${normalized}`);
+  const digest = await window.crypto.subtle.digest("SHA-256", bytes);
+  return [...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, "0")).join("");
+}
+
+function sameText(left, right) {
+  const a = String(left || "");
+  const b = String(right || "");
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let index = 0; index < a.length; index += 1) {
+    diff |= a.charCodeAt(index) ^ b.charCodeAt(index);
+  }
+  return diff === 0;
+}
+
+function loadAccessAttempts() {
+  try {
+    const attempts = JSON.parse(localStorage.getItem(ACCESS_ATTEMPT_KEY));
+    if (attempts && typeof attempts === "object") return { count: 0, lockedUntil: 0, ...attempts };
+  } catch {
+    // Treat storage errors as no saved attempts.
+  }
+  return { count: 0, lockedUntil: 0 };
+}
+
+function saveAccessAttempts(attempts) {
+  try {
+    localStorage.setItem(ACCESS_ATTEMPT_KEY, JSON.stringify(attempts));
+  } catch {
+    // Ignore storage errors.
+  }
+}
+
+function accessLockRemainingMinutes() {
+  const attempts = loadAccessAttempts();
+  const remaining = Math.max(0, attempts.lockedUntil - Date.now());
+  return Math.ceil(remaining / 60000);
+}
+
+function recordFailedAccess() {
+  const attempts = loadAccessAttempts();
+  if (attempts.lockedUntil > Date.now()) return attempts;
+  const nextCount = attempts.count + 1;
+  const lockedUntil = nextCount >= CONFIG.maxAccessAttempts
+    ? Date.now() + CONFIG.accessLockMinutes * 60000
+    : 0;
+  const next = { count: nextCount, lockedUntil };
+  saveAccessAttempts(next);
+  return next;
+}
+
+function clearAccessAttempts() {
+  saveAccessAttempts({ count: 0, lockedUntil: 0 });
+}
+
+async function loadAccess() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("demo") === "1") {
+    accessUnlocked = false;
+    return;
+  }
+  try {
+    accessUnlocked = localStorage.getItem(ACCESS_KEY) === "unlocked";
+  } catch {
+    accessUnlocked = false;
+  }
+}
+
+async function unlockAccess(code, showMessage = true) {
+  const lockedFor = accessLockRemainingMinutes();
+  if (lockedFor > 0) {
+    if (els.accessHelp) els.accessHelp.textContent = `Too many tries. Wait about ${lockedFor} minute${lockedFor === 1 ? "" : "s"} before trying again.`;
+    return false;
+  }
+  accessUnlocked = sameText(await codeDigest(code), CONFIG.accessDigest);
+  if (!accessUnlocked) {
+    const attempts = recordFailedAccess();
+    const triesLeft = Math.max(0, CONFIG.maxAccessAttempts - attempts.count);
+    if (els.accessHelp) {
+      els.accessHelp.textContent = attempts.lockedUntil > Date.now()
+        ? `Too many tries. Access entry is paused for ${CONFIG.accessLockMinutes} minutes.`
+        : `That code did not unlock the trainer. ${triesLeft} ${triesLeft === 1 ? "try" : "tries"} left before a short pause.`;
+    }
+    return false;
+  }
+  clearAccessAttempts();
+  try {
+    localStorage.setItem(ACCESS_KEY, "unlocked");
+  } catch {
+    // Access still works for this visit.
+  }
+  if (showMessage && els.accessHelp) els.accessHelp.textContent = "Full trainer unlocked on this browser.";
+  return true;
+}
+
+function hasPremiumAccess() {
+  return accessUnlocked;
+}
+
+function enforceDemoState() {
+  if (hasPremiumAccess()) return;
+  state = {
+    ...state,
+    ...DEMO_SETTINGS,
+    stepIndex: Math.min(state.stepIndex, 3),
+  };
+}
+
+function showAccessPrompt(feature = "the full trainer") {
+  if (els.accessHelp) els.accessHelp.textContent = `Founding access unlocks ${feature}.`;
+  document.getElementById("access")?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function guardPremium(feature) {
+  if (hasPremiumAccess()) return true;
+  showAccessPrompt(feature);
+  enforceDemoState();
+  applyAccessState();
+  render();
+  return false;
 }
 
 function mod(value, size) {
@@ -410,6 +569,7 @@ function qualitySuffix(quality) {
 
 function degreeChordName(degree, accidental, quality) {
   const accidentalLabel = accidental === -1 ? "b" : accidental === 1 ? "#" : "";
+  if (quality === "7") return `${accidentalLabel}${degree}dom7`;
   return `${accidentalLabel}${degree}${qualitySuffix(quality)}`;
 }
 
@@ -931,7 +1091,55 @@ function renderFlowLane(items, activeIndex, label, variant = "") {
   });
 }
 
+function applyAccessState() {
+  const unlocked = hasPremiumAccess();
+  document.body.classList.toggle("has-access", unlocked);
+  document.body.classList.toggle("is-demo", !unlocked);
+  if (els.accessStatus) els.accessStatus.textContent = unlocked ? "Full access" : "Demo mode";
+  if (els.accessCode) {
+    els.accessCode.disabled = unlocked;
+    els.accessCode.placeholder = unlocked ? "Full trainer unlocked" : "Enter access code";
+  }
+  els.modeTabs.forEach(tab => {
+    const locked = !unlocked && tab.dataset.mode !== "progression";
+    tab.disabled = locked;
+    tab.title = locked ? "Founding access unlocks this mode." : "";
+  });
+  els.keySelect.disabled = !unlocked;
+  els.customProgression.disabled = !unlocked;
+  els.applyProgression.disabled = !unlocked;
+  els.scaleType.disabled = !unlocked;
+  els.boxSelect.disabled = !unlocked;
+  els.playScale.disabled = !unlocked;
+  els.chordRoot.disabled = !unlocked;
+  els.chordQuality.disabled = !unlocked;
+  els.playChord.disabled = !unlocked;
+  els.blockButtons.forEach(button => {
+    const locked = !unlocked && button.dataset.progressionBlock !== DEMO_SETTINGS.progressionBlock;
+    button.disabled = locked;
+    button.title = locked ? "Founding access unlocks low and high chord blocks." : "";
+  });
+  els.stringSet.querySelectorAll("input").forEach(input => {
+    input.disabled = !unlocked;
+    input.closest("label")?.classList.toggle("locked-control", !unlocked);
+  });
+  [...els.progressionPresets.children].forEach(button => {
+    const locked = !unlocked && button.dataset.preset !== DEMO_SETTINGS.presetId;
+    button.disabled = locked;
+    button.title = locked ? "Founding access unlocks more progressions and custom songs." : "";
+  });
+  document.querySelectorAll("#practice-lab button, #practice-lab input, #practice-lab select").forEach(control => {
+    control.disabled = !unlocked;
+  });
+  els.checks.forEach(check => {
+    check.disabled = !unlocked;
+    if (!unlocked) check.checked = false;
+  });
+}
+
 function render() {
+  enforceDemoState();
+  applyAccessState();
   document.body.dataset.mode = state.mode;
   if (state.mode === "progression") renderProgression();
   if (state.mode === "pentatonic") renderPentatonic();
@@ -998,7 +1206,89 @@ function playScaleRun() {
 function updateChecks() {
   const score = [...els.checks].filter(check => check.checked).length;
   els.sessionScore.textContent = `${score} / ${els.checks.length}`;
-  localStorage.setItem("britGuitarTrainerChecks", JSON.stringify([...els.checks].map(check => check.checked)));
+  localStorage.setItem("britGuitarTrainerChecks", JSON.stringify({
+    date: todayKey(),
+    values: [...els.checks].map(check => check.checked),
+  }));
+  updatePracticeProgress(score);
+}
+
+function todayKey(offset = 0) {
+  const date = new Date();
+  date.setDate(date.getDate() + offset);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function loadPracticeProgress() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(PROGRESS_KEY));
+    if (saved && typeof saved === "object") return { sessions: 0, days: {}, ...saved };
+  } catch {
+    // Keep an empty progress record.
+  }
+  return { sessions: 0, days: {} };
+}
+
+function savePracticeProgress(progress) {
+  localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
+}
+
+function updatePracticeProgress(score) {
+  const progress = loadPracticeProgress();
+  const date = todayKey();
+  const previous = progress.days[date] || {};
+  const complete = score === els.checks.length && els.checks.length > 0;
+  if (complete && !previous.completedEver) progress.sessions = (progress.sessions || 0) + 1;
+  progress.days[date] = {
+    ...previous,
+    score,
+    completed: complete,
+    completedEver: previous.completedEver || complete,
+    updatedAt: Date.now(),
+  };
+  savePracticeProgress(progress);
+  renderPracticeProgress(progress);
+}
+
+function practiceStreak(progress) {
+  let streak = 0;
+  for (let offset = 0; offset > -90; offset -= 1) {
+    const day = progress.days[todayKey(offset)];
+    if (!day?.completedEver) break;
+    streak += 1;
+  }
+  return streak;
+}
+
+function renderPracticeProgress(progress = loadPracticeProgress()) {
+  if (!els.progressChart) return;
+  const maxScore = Math.max(els.checks.length, 1);
+  const today = progress.days[todayKey()] || { score: 0 };
+  const score = Math.min(today.score || 0, maxScore);
+  const remaining = Math.max(maxScore - score, 0);
+  els.progressToday.textContent = `Today: ${score} / ${maxScore}`;
+  els.progressHint.textContent = remaining
+    ? `${remaining} daily step${remaining === 1 ? "" : "s"} left. Small wins count.`
+    : "Session complete. Come back tomorrow and keep the streak alive.";
+  const streak = practiceStreak(progress);
+  els.progressStreak.textContent = `${streak} day${streak === 1 ? "" : "s"}`;
+  els.progressSessions.textContent = String(progress.sessions || 0);
+  els.progressChart.innerHTML = "";
+  for (let offset = -6; offset <= 0; offset += 1) {
+    const key = todayKey(offset);
+    const date = new Date(`${key}T00:00:00`);
+    const item = progress.days[key] || { score: 0 };
+    const value = Math.min(item.score || 0, maxScore);
+    const bar = document.createElement("div");
+    bar.className = `progress-day${item.completedEver ? " complete" : ""}`;
+    bar.innerHTML = `
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" style="height: ${Math.max(8, (value / maxScore) * 100)}%"></div>
+      </div>
+      <span>${date.toLocaleDateString(undefined, { weekday: "short" }).slice(0, 3)}</span>
+    `;
+    els.progressChart.appendChild(bar);
+  }
 }
 
 function saveState() {
@@ -1100,9 +1390,11 @@ function loadState() {
     if (!LABEL_MODE_NAMES[state.labelMode]) state.labelMode = "notes";
     if (!SCALE_INTERVALS[state.scaleType]) state.scaleType = "minorPentatonic";
     if (!CHORD_BLOCKS[state.progressionBlock]) state.progressionBlock = "middle";
+    state.progression = state.progression.replace(/\b([b#]?[1-7])7\b/g, "$1dom7");
   } catch {
     state = { ...state };
   }
+  enforceDemoState();
 }
 
 function hydrateControls() {
@@ -1118,6 +1410,10 @@ function hydrateControls() {
     const input = label.querySelector("input");
     input.checked = state.selectedStrings.includes(string.id);
     input.addEventListener("change", () => {
+      if (!guardPremium("any string combination")) {
+        input.checked = DEMO_SETTINGS.selectedStrings.includes(input.value);
+        return;
+      }
       clearTransitionTimers();
       state.selectedStrings = [...els.stringSet.querySelectorAll("input:checked")].map(item => item.value);
       if (!state.selectedStrings.length) {
@@ -1137,6 +1433,10 @@ function hydrateControls() {
     button.dataset.preset = preset.id;
     if (preset.id === state.presetId) button.classList.add("active");
     button.addEventListener("click", () => {
+      if (!hasPremiumAccess() && preset.id !== DEMO_SETTINGS.presetId) {
+        guardPremium("more progressions and custom songs");
+        return;
+      }
       setMode("progression");
       state.presetId = preset.id;
       state.progression = preset.value;
@@ -1164,7 +1464,9 @@ function hydrateControls() {
   els.tempoValue.textContent = `${els.tempoRange.value} bpm`;
   try {
     const checks = JSON.parse(localStorage.getItem("britGuitarTrainerChecks"));
-    if (Array.isArray(checks)) checks.forEach((value, index) => { if (els.checks[index]) els.checks[index].checked = value; });
+    if (hasPremiumAccess() && checks?.date === todayKey() && Array.isArray(checks.values)) {
+      checks.values.forEach((value, index) => { if (els.checks[index]) els.checks[index].checked = value; });
+    }
   } catch {
     // Leave defaults.
   }
@@ -1175,11 +1477,20 @@ function hydrateControls() {
 function bindEvents() {
   els.modeTabs.forEach(tab => {
     tab.addEventListener("click", () => {
+      if (!hasPremiumAccess() && tab.dataset.mode !== "progression") {
+        guardPremium("advanced practice modes");
+        return;
+      }
       setMode(tab.dataset.mode);
       render();
     });
   });
-  els.keySelect.addEventListener("change", () => { clearTransitionTimers(); state.key = els.keySelect.value; render(); });
+  els.keySelect.addEventListener("change", () => {
+    if (!guardPremium("all keys")) return;
+    clearTransitionTimers();
+    state.key = els.keySelect.value;
+    render();
+  });
   els.soundSelect.addEventListener("change", () => { state.sound = els.soundSelect.value; saveState(); });
   els.tempoRange.addEventListener("input", () => { els.tempoValue.textContent = `${els.tempoRange.value} bpm`; });
   els.labelButtons.forEach(button => {
@@ -1192,6 +1503,10 @@ function bindEvents() {
   });
   els.blockButtons.forEach(button => {
     button.addEventListener("click", () => {
+      if (!hasPremiumAccess() && button.dataset.progressionBlock !== DEMO_SETTINGS.progressionBlock) {
+        guardPremium("low and high chord blocks");
+        return;
+      }
       clearTransitionTimers();
       state.progressionBlock = button.dataset.progressionBlock;
       state.stepIndex = 0;
@@ -1200,15 +1515,16 @@ function bindEvents() {
     });
   });
   els.applyProgression.addEventListener("click", () => {
+    if (!guardPremium("custom progressions")) return;
     setMode("progression");
     state.progression = els.customProgression.value || "1 6m 4 5";
     state.stepIndex = 0;
     render();
   });
-  els.scaleType.addEventListener("change", () => { clearTransitionTimers(); state.scaleType = els.scaleType.value; render(); });
-  els.boxSelect.addEventListener("change", () => { clearTransitionTimers(); state.box = els.boxSelect.value; render(); });
-  els.chordRoot.addEventListener("change", () => { clearTransitionTimers(); state.chordRoot = els.chordRoot.value; render(); });
-  els.chordQuality.addEventListener("change", () => { clearTransitionTimers(); state.chordQuality = els.chordQuality.value; render(); });
+  els.scaleType.addEventListener("change", () => { if (!guardPremium("full scale practice")) return; clearTransitionTimers(); state.scaleType = els.scaleType.value; render(); });
+  els.boxSelect.addEventListener("change", () => { if (!guardPremium("all scale boxes")) return; clearTransitionTimers(); state.box = els.boxSelect.value; render(); });
+  els.chordRoot.addEventListener("change", () => { if (!guardPremium("any chord root")) return; clearTransitionTimers(); state.chordRoot = els.chordRoot.value; render(); });
+  els.chordQuality.addEventListener("change", () => { if (!guardPremium("advanced chord types")) return; clearTransitionTimers(); state.chordQuality = els.chordQuality.value; render(); });
   els.previousButton.addEventListener("click", () => {
     clearTransitionTimers();
     const items = currentItems();
@@ -1225,20 +1541,43 @@ function bindEvents() {
     if (state.mode === "progression") playProgression();
     else playCurrent();
   });
-  els.playScale.addEventListener("click", playScaleRun);
-  els.playChord.addEventListener("click", playCurrent);
+  els.playScale.addEventListener("click", () => { if (guardPremium("scale playback")) playScaleRun(); });
+  els.playChord.addEventListener("click", () => { if (guardPremium("chord tone playback")) playCurrent(); });
   els.newNoteTarget?.addEventListener("click", () => {
+    if (!guardPremium("note finder training")) return;
     nextNoteTarget();
   });
   els.showNoteHint?.addEventListener("click", () => {
+    if (!guardPremium("note finder training")) return;
     setMode("notefinder");
     render();
   });
   els.nextChordTrivia?.addEventListener("click", () => {
+    if (!guardPremium("chord naming games")) return;
     labState.chordTriviaIndex = (labState.chordTriviaIndex + 1) % CHORD_TRIVIA.length;
     renderLab();
   });
-  els.checks.forEach(check => check.addEventListener("change", updateChecks));
+  els.checks.forEach(check => check.addEventListener("change", () => {
+    if (!hasPremiumAccess()) {
+      check.checked = false;
+      guardPremium("progress tracking");
+      return;
+    }
+    updateChecks();
+  }));
+  els.accessForm?.addEventListener("submit", async event => {
+    event.preventDefault();
+    const ok = await unlockAccess(els.accessCode.value);
+    if (!ok) {
+      els.accessCode.select();
+      return;
+    }
+    applyAccessState();
+    render();
+  });
+  els.buyAccessButton?.addEventListener("click", () => {
+    if (CONFIG.paymentUrl) window.location.href = CONFIG.paymentUrl;
+  });
   els.buyButton.addEventListener("click", () => {
     if (CONFIG.paymentUrl) {
       window.location.href = CONFIG.paymentUrl;
@@ -1248,7 +1587,12 @@ function bindEvents() {
   });
 }
 
-loadState();
-hydrateControls();
-bindEvents();
-render();
+async function init() {
+  await loadAccess();
+  loadState();
+  hydrateControls();
+  bindEvents();
+  render();
+}
+
+init();
