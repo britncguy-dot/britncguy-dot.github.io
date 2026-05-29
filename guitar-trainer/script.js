@@ -25,10 +25,22 @@ const LABEL_MODE_NAMES = {
 const QUALITY_INTERVALS = {
   maj: [0, 4, 7],
   min: [0, 3, 7],
+  dim: [0, 3, 6],
+  aug: [0, 4, 8],
+  sus2: [0, 2, 7],
+  sus4: [0, 5, 7],
+  "6": [0, 4, 7, 9],
+  m6: [0, 3, 7, 9],
   "7": [0, 4, 7, 10],
   maj7: [0, 4, 7, 11],
   m7: [0, 3, 7, 10],
-  sus4: [0, 5, 7],
+  m7b5: [0, 3, 6, 10],
+  dim7: [0, 3, 6, 9],
+  add9: [0, 4, 7, 14],
+  madd9: [0, 3, 7, 14],
+  "9": [0, 4, 7, 10, 14],
+  maj9: [0, 4, 7, 11, 14],
+  m9: [0, 3, 7, 10, 14],
 };
 const SCALE_INTERVALS = {
   minorPentatonic: [0, 3, 5, 7, 10],
@@ -242,39 +254,95 @@ function parseProgression(text) {
 
 function parseToken(token) {
   const clean = token.trim();
-  const degreeMatch = clean.match(/^([b#]?)([1-7])(m|maj|min|dim|7|maj7|m7)?$/i);
+  const degreeMatch = clean.match(/^([b#]?)([1-7])(maj9|maj7|madd9|m7b5|dim7|min9|min7|m9|m7|min|maj|add9|sus2|sus4|dim|aug|m6|6|9|7|m|\+)?$/i);
   if (degreeMatch) {
     const accidental = degreeMatch[1] === "b" ? -1 : degreeMatch[1] === "#" ? 1 : 0;
     const degree = Number(degreeMatch[2]);
-    const suffix = (degreeMatch[3] || "").toLowerCase();
     const naturalQuality = [1, 4, 5].includes(degree) ? "maj" : degree === 7 ? "dim" : "min";
-    const quality = suffix === "m" || suffix === "min" ? "min" : suffix === "7" ? "7" : suffix === "maj7" ? "maj7" : suffix === "m7" ? "m7" : naturalQuality;
+    const quality = normalizeQuality(degreeMatch[3], naturalQuality);
     const root = keyRootMidi() + DEGREE_STEPS[degree - 1] + accidental;
     return {
       token: clean,
-      name: `${degree}${quality === "min" ? "m" : quality === "dim" ? "dim" : quality === "7" ? "7" : ""}`,
+      name: degreeChordName(degree, accidental, quality),
       rootMidi: root,
       rootName: noteName(root),
       quality,
       detail: `${degreeName(degree)} in ${state.key}`,
     };
   }
-  const chordMatch = clean.match(/^([A-G](?:#|b)?)(m7|maj7|m|7|sus4)?$/i);
+  const chordMatch = clean.match(/^([A-G](?:#|b)?)(maj9|maj7|madd9|m7b5|dim7|min9|min7|m9|m7|min|maj|add9|sus2|sus4|dim|aug|m6|6|9|7|m|\+)?(?:\/([A-G](?:#|b)?))?$/i);
   if (chordMatch) {
     const rootName = chordMatch[1].replace("b", "b");
-    const suffix = chordMatch[2] || "";
-    const quality = suffix === "m" ? "min" : suffix === "m7" ? "m7" : suffix === "maj7" ? "maj7" : suffix === "7" ? "7" : suffix === "sus4" ? "sus4" : "maj";
+    const quality = normalizeQuality(chordMatch[2], "maj");
+    const bassName = chordMatch[3] ? noteName(60 + noteIndex(chordMatch[3])) : "";
     const rootMidi = 60 + noteIndex(rootName);
     return {
       token: clean,
-      name: clean,
+      name: bassName ? `${chordName(noteName(rootMidi), quality)}/${bassName}` : chordName(noteName(rootMidi), quality),
       rootMidi,
       rootName: noteName(rootMidi),
       quality,
-      detail: chordQualityLabel(quality),
+      detail: bassName ? `${chordQualityLabel(quality)} over ${bassName}` : chordQualityLabel(quality),
     };
   }
   return null;
+}
+
+function normalizeQuality(suffix = "", fallback = "maj") {
+  const clean = String(suffix || "").toLowerCase();
+  return {
+    "": fallback,
+    maj: "maj",
+    min: "min",
+    m: "min",
+    "+": "aug",
+    aug: "aug",
+    dim: "dim",
+    sus2: "sus2",
+    sus4: "sus4",
+    "6": "6",
+    m6: "m6",
+    "7": "7",
+    maj7: "maj7",
+    min7: "m7",
+    m7: "m7",
+    m7b5: "m7b5",
+    dim7: "dim7",
+    add9: "add9",
+    madd9: "madd9",
+    "9": "9",
+    maj9: "maj9",
+    min9: "m9",
+    m9: "m9",
+  }[clean] || fallback;
+}
+
+function qualitySuffix(quality) {
+  return {
+    maj: "",
+    min: "m",
+    dim: "dim",
+    aug: "aug",
+    sus2: "sus2",
+    sus4: "sus4",
+    "6": "6",
+    m6: "m6",
+    "7": "7",
+    maj7: "maj7",
+    m7: "m7",
+    m7b5: "m7b5",
+    dim7: "dim7",
+    add9: "add9",
+    madd9: "madd9",
+    "9": "9",
+    maj9: "maj9",
+    m9: "m9",
+  }[quality] || "";
+}
+
+function degreeChordName(degree, accidental, quality) {
+  const accidentalLabel = accidental === -1 ? "b" : accidental === 1 ? "#" : "";
+  return `${accidentalLabel}${degree}${qualitySuffix(quality)}`;
 }
 
 function degreeName(degree) {
@@ -285,11 +353,22 @@ function chordQualityLabel(quality) {
   return {
     maj: "major",
     min: "minor",
+    dim: "diminished",
+    aug: "augmented",
+    sus2: "sus2",
+    sus4: "sus4",
+    "6": "6",
+    m6: "minor 6",
     "7": "dominant 7",
     maj7: "major 7",
     m7: "minor 7",
-    sus4: "sus4",
-    dim: "diminished",
+    m7b5: "minor 7 flat 5",
+    dim7: "diminished 7",
+    add9: "add 9",
+    madd9: "minor add 9",
+    "9": "dominant 9",
+    maj9: "major 9",
+    m9: "minor 9",
   }[quality] || quality;
 }
 
@@ -307,7 +386,7 @@ function currentItems() {
 }
 
 function chordName(root, quality) {
-  return root + ({ maj: "", min: "m", "7": "7", maj7: "maj7", m7: "m7", sus4: "sus4" }[quality] || "");
+  return root + qualitySuffix(quality);
 }
 
 function chordToneMidis(item) {
@@ -375,6 +454,12 @@ function chordToneIndexForMidi(midi, item) {
   return chordIntervals(item.quality).findIndex(interval => mod(item.rootMidi + interval, 12) === mod(midi, 12));
 }
 
+function coreToneIndexes(item) {
+  return chordIntervals(item.quality)
+    .map((_, index) => index)
+    .slice(0, 3);
+}
+
 function stringToneCandidates(string, item) {
   const toneClasses = chordToneMidis(item).map(midi => mod(midi, 12));
   const candidates = [];
@@ -435,13 +520,17 @@ function suggestedChordGrip(item, previousGrip = null, block = currentBlock()) {
 
   function scoreChoice(choice) {
     const covered = new Set(choice.map(candidate => candidate.toneIndex));
+    const coreIndexes = coreToneIndexes(item);
+    const coveredCoreCount = coreIndexes.filter(index => covered.has(index)).length;
+    const wantedCoreCoverage = Math.min(coreIndexes.length, choice.length);
     const wantedCoverage = Math.min(toneCount, choice.length);
-    const missingTonePenalty = Math.max(0, wantedCoverage - covered.size) * 1400;
+    const missingCorePenalty = Math.max(0, wantedCoreCoverage - coveredCoreCount) * 3000;
+    const missingTonePenalty = Math.max(0, wantedCoverage - covered.size) * 260;
     const duplicatePenalty = Math.max(0, choice.length - covered.size) * 18;
     const frets = choice.map(candidate => candidate.fret);
     const spanPenalty = (Math.max(...frets) - Math.min(...frets)) * 5;
     const localScore = choice.reduce((sum, candidate) => sum + candidate.localScore, 0);
-    return missingTonePenalty + duplicatePenalty + spanPenalty + localScore;
+    return missingCorePenalty + missingTonePenalty + duplicatePenalty + spanPenalty + localScore;
   }
 
   function walk(index, choice) {
