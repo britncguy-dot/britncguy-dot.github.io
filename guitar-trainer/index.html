@@ -6,7 +6,7 @@
   <title>FretFlow Trainer</title>
   <meta name="description" content="A practical guitar trainer for progressions, close voice-leading, chord blocks, pentatonic boxes, Nashville numbers, and daily practice.">
   <meta name="theme-color" content="#141718">
-  <link rel="stylesheet" href="styles.css?v=20260528-dropdown">
+  <link rel="stylesheet" href="styles.css?v=20260528-builder">
 </head>
 <body>
   <main class="app">
@@ -85,7 +85,7 @@
           </div>
           <label>
             Custom
-            <input id="customProgression" type="text" value="1 6m 4 5">
+            <input id="customProgression" type="text" value="1 6m 4 5" placeholder="G D/F# Em7 Cadd9">
           </label>
           <button id="applyProgression" class="full-button" type="button">Load Progression</button>
         </section>
@@ -134,10 +134,22 @@
               <select id="chordQuality">
                 <option value="maj">Major</option>
                 <option value="min">Minor</option>
+                <option value="dim">Diminished</option>
+                <option value="aug">Augmented</option>
+                <option value="sus2">Sus2</option>
+                <option value="sus4">Sus4</option>
+                <option value="6">6</option>
+                <option value="m6">Minor 6</option>
                 <option value="7">Dominant 7</option>
                 <option value="maj7">Major 7</option>
                 <option value="m7">Minor 7</option>
-                <option value="sus4">Sus4</option>
+                <option value="m7b5">Minor 7 flat 5</option>
+                <option value="dim7">Diminished 7</option>
+                <option value="add9">Add 9</option>
+                <option value="madd9">Minor add 9</option>
+                <option value="9">Dominant 9</option>
+                <option value="maj9">Major 9</option>
+                <option value="m9">Minor 9</option>
               </select>
             </label>
           </div>
@@ -208,12 +220,42 @@
       </aside>
     </section>
 
+    <section class="triad-demo-band" aria-label="Triad-safe progression builder">
+      <div>
+        <p class="eyebrow">Triad-safe engine</p>
+        <h2>Custom progressions that keep the 1-3-5 clear.</h2>
+        <p>
+          Build progressions with Nashville numbers or chord names, while the trainer favors complete triad grips before doubled notes.
+        </p>
+        <div class="example-row" aria-label="Example custom progressions">
+          <span>G D/F# Em7 Cadd9</span>
+          <span>1 6m 4 5</span>
+          <span>Cmaj7 Am7 D9 G</span>
+        </div>
+      </div>
+      <div class="triad-clip" aria-label="Animated triad example">
+        <div class="mini-fretboard">
+          <span class="mini-string one"></span>
+          <span class="mini-string two"></span>
+          <span class="mini-string three"></span>
+          <span class="mini-fret a"></span>
+          <span class="mini-fret b"></span>
+          <span class="mini-fret c"></span>
+          <span class="triad-dot dot-one">1</span>
+          <span class="triad-dot dot-three">3</span>
+          <span class="triad-dot dot-five">5</span>
+        </div>
+        <strong>1 - 3 - 5</strong>
+        <small>Then move to the closest clean grip.</small>
+      </div>
+    </section>
+
     <section id="pricing" class="pricing-band">
       <div>
         <p class="eyebrow">Founding offer</p>
-        <h2>Smooth chord changes without fretboard overload.</h2>
+        <h2>Smooth chord changes with custom triad-safe progressions.</h2>
         <p>
-          Founding access to a guitar trainer built for clear progression practice and close voice-leading.
+          Founding access to a guitar trainer built for clear progression practice, custom chord changes, and close voice-leading.
         </p>
       </div>
       <div class="price-card">
@@ -234,6 +276,6 @@
     </form>
   </dialog>
 
-  <script src="script.js?v=20260528-triads"></script>
+  <script src="script.js?v=20260528-builder"></script>
 </body>
 </html>
