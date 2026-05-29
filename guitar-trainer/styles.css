@@ -1313,6 +1313,48 @@ code {
   animation: laneBeat .72s ease-in-out infinite;
 }
 
+.flow-lane.tone-map {
+  grid-template-columns: minmax(88px, auto) repeat(auto-fit, minmax(150px, 1fr));
+  min-height: 66px;
+}
+
+.flow-lane.tone-map .flow-label {
+  color: var(--ink);
+  background: rgba(242, 198, 109, .14);
+}
+
+.flow-lane.tone-map .flow-node {
+  min-height: 54px;
+  border-color: rgba(143, 199, 255, .18);
+  background:
+    linear-gradient(135deg, rgba(143, 199, 255, .08), rgba(138, 223, 186, .045)),
+    rgba(18, 22, 23, .78);
+}
+
+.flow-lane.tone-map .flow-count {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--blue);
+  font-size: 17px;
+}
+
+.flow-lane.tone-map .flow-node:first-of-type {
+  border-color: rgba(242, 198, 109, .68);
+}
+
+.flow-lane.tone-map .flow-node:first-of-type .flow-count {
+  background: var(--gold);
+}
+
+.flow-lane.tone-map .flow-node strong {
+  font-size: 16px;
+}
+
+.flow-lane.tone-map .flow-node small {
+  color: rgba(248, 242, 231, .72);
+}
+
 .stage {
   position: relative;
 }
