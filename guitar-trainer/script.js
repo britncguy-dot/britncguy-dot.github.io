@@ -166,6 +166,27 @@ function toneLabels(midis, rootMidi) {
   return midis.map(midi => toneLabel(midi, rootMidi));
 }
 
+function chordToneRole(midi, rootMidi) {
+  return {
+    "1": "Root",
+    "b3": "Minor 3rd",
+    "3": "Major 3rd",
+    "4": "Sus4",
+    "5": "5th",
+    "b5": "Flat 5",
+    "b7": "Flat 7",
+    "7": "Major 7",
+    "2": "9th",
+    "6": "6th",
+  }[degreeLabel(midi, rootMidi)] || "Tone";
+}
+
+function chordToneMapDetail(midi, rootMidi) {
+  const label = toneLabel(midi, rootMidi);
+  const note = noteName(midi);
+  return state.labelMode === "notes" ? note : `${label} - ${note}`;
+}
+
 function labelLegend() {
   return `Labels = ${labelModeName()}`;
 }
@@ -726,21 +747,23 @@ function renderPentatonic() {
 
 function renderChordTones() {
   const item = currentItems()[0];
+  const toneMidis = chordToneMidis(item);
   const toneClasses = chordToneMidis(item).map(midi => mod(midi, 12));
   const rootClass = mod(item.rootMidi, 12);
   const suggested = suggestedChordGrip(item);
   const positions = getFretPositionsForMidiClasses(toneClasses, "chord", rootClass, suggested);
   drawFretboard(positions);
   setHeader("Chord tone trainer", `${item.name}: find every root, 3rd, and 5th`);
-  setNow(item.name, `${toneLabelHeading()}: ${toneLabels(chordToneMidis(item), item.rootMidi).join(", ")}`);
-  renderQueue(chordToneMidis(item).map((midi, index) => ({
+  setNow(item.name, `${toneLabelHeading()}: ${toneLabels(toneMidis, item.rootMidi).join(", ")}`);
+  renderQueue(toneMidis.map((midi, index) => ({
     name: toneLabel(midi, item.rootMidi),
     detail: state.labelMode === "notes" ? `Chord tone ${index + 1}` : `${noteName(midi)} - chord tone ${index + 1}`,
   })));
-  renderFlowLane(chordToneMidis(item).map((midi, index) => ({
-    name: toneLabel(midi, item.rootMidi),
-    detail: noteName(midi),
-  })), 0, "Chord map");
+  renderFlowLane(toneMidis.map(midi => ({
+    count: degreeLabel(midi, item.rootMidi),
+    name: chordToneRole(midi, item.rootMidi),
+    detail: chordToneMapDetail(midi, item.rootMidi),
+  })), null, "1-3-5 map", "tone-map");
   renderLegend(["Gold = root", "Green = chord tone", "Ring = suggested grip", labelLegend()]);
   renderLesson([`Chord: ${item.name}`, `Labels: ${labelModeName()}`, `Next: build one small grip`]);
 }
@@ -791,8 +814,9 @@ function renderLesson(items) {
   });
 }
 
-function renderFlowLane(items, activeIndex, label) {
+function renderFlowLane(items, activeIndex, label, variant = "") {
   if (!els.flowLane) return;
+  els.flowLane.className = `flow-lane ${variant}`.trim();
   els.flowLane.innerHTML = "";
   const laneLabel = document.createElement("span");
   laneLabel.className = "flow-label";
@@ -801,7 +825,7 @@ function renderFlowLane(items, activeIndex, label) {
   items.forEach((item, index) => {
     const node = document.createElement(state.mode === "progression" ? "button" : "span");
     node.className = "flow-node";
-    if (index === activeIndex) node.classList.add("active");
+    if (Number.isInteger(activeIndex) && index === activeIndex) node.classList.add("active");
     if (state.mode === "progression" && index < activeIndex) node.classList.add("complete");
     if (node.tagName === "BUTTON") {
       node.type = "button";
@@ -814,7 +838,7 @@ function renderFlowLane(items, activeIndex, label) {
 
     const count = document.createElement("span");
     count.className = "flow-count";
-    count.textContent = `${index + 1}`;
+    count.textContent = item.count || `${index + 1}`;
     const name = document.createElement("strong");
     name.textContent = item.name;
     const detail = document.createElement("small");
