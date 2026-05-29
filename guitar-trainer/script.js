@@ -1,5 +1,5 @@
 const CONFIG = {
-  paymentUrl: "",
+  paymentUrl: "https://brittle342.gumroad.com/l/fretflow-trainer",
   priceLabel: "$9",
 };
 
