@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BRIT Guitar Trainer</title>
+  <meta name="description" content="A practical guitar trainer for progressions, Nashville numbers, pentatonic boxes, chord tones, and daily practice.">
+  <meta name="theme-color" content="#141718">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <a class="brand" href="#trainer" aria-label="BRIT Guitar Trainer home">
+        <span class="brand-mark">BG</span>
+        <span>
+          <strong>BRIT Guitar Trainer</strong>
+          <small>Progressions. Pentatonics. Practical practice.</small>
+        </span>
+      </a>
+      <nav class="nav" aria-label="Main navigation">
+        <a href="#trainer">Trainer</a>
+        <a href="#daily">Daily</a>
+        <a href="#pricing">Founding</a>
+      </nav>
+    </header>
+
+    <section id="trainer" class="trainer-shell">
+      <aside class="control-rail" aria-label="Trainer controls">
+        <div class="mode-tabs" role="tablist" aria-label="Practice mode">
+          <button class="mode-tab active" type="button" data-mode="progression">Progression</button>
+          <button class="mode-tab" type="button" data-mode="pentatonic">Pentatonic</button>
+          <button class="mode-tab" type="button" data-mode="chordtones">Chord Tones</button>
+        </div>
+
+        <section class="panel">
+          <div class="panel-title">
+            <span class="step-dot">1</span>
+            <h2>Session</h2>
+          </div>
+          <div class="field-grid two">
+            <label>
+              Key
+              <select id="keySelect"></select>
+            </label>
+            <label>
+              Sound
+              <select id="soundSelect">
+                <option value="acoustic">Acoustic</option>
+                <option value="electric">Electric</option>
+                <option value="bell">Bell</option>
+                <option value="warm">Warm</option>
+              </select>
+            </label>
+          </div>
+          <label class="range-label">
+            Tempo
+            <input id="tempoRange" type="range" min="55" max="140" value="82">
+            <span id="tempoValue">82 bpm</span>
+          </label>
+          <div class="label-control" aria-label="Fretboard label style">
+            <span>Labels</span>
+            <div class="label-switch" role="group" aria-label="Fretboard labels">
+              <button class="active" type="button" data-label-mode="notes">Notes</button>
+              <button type="button" data-label-mode="degrees">Degrees</button>
+              <button type="button" data-label-mode="solfege">Do Re Mi</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel mode-panel" data-panel="progression">
+          <div class="panel-title">
+            <span class="step-dot">2</span>
+            <h2>Progression</h2>
+          </div>
+          <div class="preset-grid" id="progressionPresets"></div>
+          <div class="block-control" aria-label="Progression chord block">
+            <span>Chord Block</span>
+            <div class="block-switch" role="group" aria-label="Progression chord block">
+              <button type="button" data-progression-block="low">Low</button>
+              <button class="active" type="button" data-progression-block="middle">Middle</button>
+              <button type="button" data-progression-block="high">High</button>
+            </div>
+          </div>
+          <label>
+            Custom
+            <input id="customProgression" type="text" value="1 6m 4 5">
+          </label>
+          <button id="applyProgression" class="full-button" type="button">Load Progression</button>
+        </section>
+
+        <section class="panel mode-panel hidden" data-panel="pentatonic">
+          <div class="panel-title">
+            <span class="step-dot">2</span>
+            <h2>Pentatonic</h2>
+          </div>
+          <div class="field-grid two">
+            <label>
+              Scale
+              <select id="scaleType">
+                <option value="minorPentatonic">Minor pentatonic</option>
+                <option value="majorPentatonic">Major pentatonic</option>
+                <option value="blues">Blues</option>
+              </select>
+            </label>
+            <label>
+              Box
+              <select id="boxSelect">
+                <option value="0">Box 1</option>
+                <option value="1">Box 2</option>
+                <option value="2">Box 3</option>
+                <option value="3">Box 4</option>
+                <option value="4">Box 5</option>
+                <option value="all">All boxes</option>
+              </select>
+            </label>
+          </div>
+          <button id="playScale" class="full-button" type="button">Play Scale</button>
+        </section>
+
+        <section class="panel mode-panel hidden" data-panel="chordtones">
+          <div class="panel-title">
+            <span class="step-dot">2</span>
+            <h2>Chord Tones</h2>
+          </div>
+          <div class="field-grid two">
+            <label>
+              Root
+              <select id="chordRoot"></select>
+            </label>
+            <label>
+              Type
+              <select id="chordQuality">
+                <option value="maj">Major</option>
+                <option value="min">Minor</option>
+                <option value="7">Dominant 7</option>
+                <option value="maj7">Major 7</option>
+                <option value="m7">Minor 7</option>
+                <option value="sus4">Sus4</option>
+              </select>
+            </label>
+          </div>
+          <button id="playChord" class="full-button" type="button">Play Chord</button>
+        </section>
+
+        <section class="panel">
+          <div class="panel-title">
+            <span class="step-dot">3</span>
+            <h2>Strings</h2>
+          </div>
+          <div class="string-set" id="stringSet"></div>
+        </section>
+      </aside>
+
+      <section class="workspace">
+        <div class="practice-header">
+          <div>
+            <p class="eyebrow" id="modeEyebrow">Progression trainer</p>
+            <h1 id="mainTitle">G: 1 - 6m - 4 - 5</h1>
+          </div>
+          <div class="transport">
+            <button id="previousButton" type="button" aria-label="Previous step">Prev</button>
+            <button id="playButton" class="primary" type="button">Play</button>
+            <button id="nextButton" type="button" aria-label="Next step">Next</button>
+          </div>
+        </div>
+
+        <div class="stage">
+          <div id="fretboard" class="fretboard" aria-label="Interactive guitar fretboard"></div>
+          <div class="legend" id="legend"></div>
+        </div>
+
+        <div class="lesson-strip" id="lessonStrip"></div>
+      </section>
+
+      <aside class="practice-rail" aria-label="Practice details">
+        <section class="now-panel">
+          <span class="small-label">Now</span>
+          <strong id="nowName">G</strong>
+          <p id="nowDetail">Tones: G, B, D</p>
+        </section>
+
+        <section class="queue-panel">
+          <div class="panel-title compact">
+            <h2>Practice Queue</h2>
+          </div>
+          <ol id="practiceQueue" class="practice-queue"></ol>
+        </section>
+
+        <section id="daily" class="daily-panel">
+          <div class="panel-title compact">
+            <h2>Daily Drill</h2>
+          </div>
+          <p id="dailyCopy">G key. Play 1 - 6m - 4 - 5. Say the numbers before you play.</p>
+          <div class="check-list">
+            <label><input type="checkbox" data-check="numbers"> Say numbers</label>
+            <label><input type="checkbox" data-check="slow"> Play slow</label>
+            <label><input type="checkbox" data-check="clean"> Clean changes</label>
+          </div>
+          <div class="progress-box">
+            <span>Session score</span>
+            <strong id="sessionScore">0 / 3</strong>
+          </div>
+        </section>
+      </aside>
+    </section>
+
+    <section id="pricing" class="pricing-band">
+      <div>
+        <p class="eyebrow">Founding offer</p>
+        <h2>Turn practice into one clear daily drill.</h2>
+        <p>
+          First version price: one-time founding access for the polished trainer, future drills, and printable practice paths.
+        </p>
+      </div>
+      <div class="price-card">
+        <span>Founding Access</span>
+        <strong>$9</strong>
+        <p>One-time early supporter price. Payment link must be connected before public selling.</p>
+        <button id="buyButton" class="primary full-button" type="button">Founding Access - $9</button>
+        <small id="paymentStatus">Payment link not connected yet.</small>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="paymentDialog" class="payment-dialog">
+    <form method="dialog">
+      <h2>Payment link needed</h2>
+      <p>Add a Stripe, Gumroad, PayPal, or Ko-fi payment link in <code>script.js</code> before taking real payments.</p>
+      <button class="primary" value="close">OK</button>
+    </form>
+  </dialog>
+
+  <script src="script.js"></script>
+</body>
+</html>
