@@ -6,7 +6,7 @@
   <title>FretFlow Trainer</title>
   <meta name="description" content="A practical guitar trainer for progressions, close voice-leading, chord blocks, pentatonic boxes, Nashville numbers, and daily practice.">
   <meta name="theme-color" content="#141718">
-  <link rel="stylesheet" href="styles.css?v=20260528-chordmap">
+  <link rel="stylesheet" href="styles.css?v=20260529-contact">
 </head>
 <body>
   <main class="app">
@@ -20,7 +20,10 @@
       </a>
       <nav class="nav" aria-label="Main navigation">
         <a href="#trainer">Trainer</a>
+        <a href="#how-to-use">How</a>
+        <a href="#practice-lab">Lab</a>
         <a href="#daily">Daily</a>
+        <a href="#contact">Contact</a>
         <a href="#pricing">Founding</a>
         <a class="nav-cta" href="#pricing">Get Access</a>
       </nav>
@@ -99,6 +102,9 @@
             <label>
               Scale
               <select id="scaleType">
+                <option value="majorScale">Major scale</option>
+                <option value="naturalMinor">Natural minor</option>
+                <option value="harmonicMinor">Harmonic minor</option>
                 <option value="minorPentatonic">Minor pentatonic</option>
                 <option value="majorPentatonic">Major pentatonic</option>
                 <option value="blues">Blues</option>
@@ -220,12 +226,87 @@
       </aside>
     </section>
 
+    <section id="how-to-use" class="tutorial-band" aria-label="How to use FretFlow Trainer">
+      <div class="tutorial-copy">
+        <p class="eyebrow">How to use it</p>
+        <h2>Quit staring at chord sheets. Put in the progression.</h2>
+        <p>
+          Use the song you are working on. FretFlow takes a lot of the thinking away by showing nearby ways to move between chords, so your understanding grows while you practice.
+        </p>
+        <ol class="tutorial-steps">
+          <li>
+            <strong>Pick the mode.</strong>
+            <span>Use Progression for songs, Pentatonic for runs, or Chord Tones to study the 1, 3, and 5.</span>
+          </li>
+          <li>
+            <strong>Choose your labels.</strong>
+            <span>Switch between note names, degrees, or do re mi until the fretboard makes sense.</span>
+          </li>
+          <li>
+            <strong>Read the colored circles.</strong>
+            <span>Gold is 1, green is 3, and blue is 5. Open-string notes sit before the nut.</span>
+          </li>
+          <li>
+            <strong>Move slowly.</strong>
+            <span>Press Play, say the numbers out loud, then use Next to find the closest clean grip.</span>
+          </li>
+        </ol>
+      </div>
+      <div class="video-script-card" aria-label="Short explainer video script">
+        <span class="script-badge">AI video script</span>
+        <h3>30-second voiceover</h3>
+        <p>
+          Quit staring at chord sheets. Put the progression from your song into FretFlow and see practical ways to move between the chords.
+          It takes a lot of the thinking away. Follow the 1, 3, and 5, choose close grips, and start understanding why the chords work together.
+        </p>
+        <div class="shot-list">
+          <span>Type song chords</span>
+          <span>Choose close grip</span>
+          <span>Light 1-3-5</span>
+          <span>Move to next chord</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="practice-lab" class="practice-lab-band" aria-label="Practice Lab">
+      <div class="lab-head">
+        <p class="eyebrow">Practice lab</p>
+        <h2>Advanced tools stay here, so the trainer stays clean.</h2>
+        <p>Use these when you want extra reps: scale work, note finding, chord naming, and 7th-chord progressions.</p>
+      </div>
+      <div class="lab-grid">
+        <article class="lab-card">
+          <span class="script-badge">Note finder</span>
+          <h3 id="noteFinderTarget">Find G</h3>
+          <p id="noteFinderHint">Find every target note on the active strings. Start slow and say the string name out loud.</p>
+          <div class="lab-actions">
+            <button id="newNoteTarget" type="button">New Note</button>
+            <button id="showNoteHint" class="primary" type="button">Show On Board</button>
+          </div>
+        </article>
+        <article class="lab-card">
+          <span class="script-badge">Chord naming</span>
+          <h3>Name this chord</h3>
+          <p id="chordTriviaQuestion">C - E - G</p>
+          <div id="chordTriviaChoices" class="lab-choice-grid"></div>
+          <p id="chordTriviaFeedback" class="lab-feedback">Pick the chord name that matches the notes.</p>
+          <button id="nextChordTrivia" type="button">Next Chord</button>
+        </article>
+        <article class="lab-card">
+          <span class="script-badge">Advanced</span>
+          <h3>7th chords and full scales</h3>
+          <p>Try the new 2m7-57-1maj7 style presets, then switch Pentatonic to major, natural minor, or harmonic minor scale practice.</p>
+          <div id="advancedProgressions" class="lab-choice-grid"></div>
+        </article>
+      </div>
+    </section>
+
     <section class="triad-demo-band" aria-label="Triad-safe progression builder">
       <div>
         <p class="eyebrow">Triad-safe engine</p>
-        <h2>Custom progressions that keep the 1-3-5 clear.</h2>
+        <h2>Custom progressions that build chord understanding.</h2>
         <p>
-          Build progressions with Nashville numbers or chord names, while the trainer favors complete triad grips before doubled notes.
+          Enter Nashville numbers or chord names from the song you are working on. The trainer favors complete chord tones and close movement before doubled notes.
         </p>
         <div class="example-row" aria-label="Example custom progressions">
           <span>G D/F# Em7 Cadd9</span>
@@ -243,9 +324,9 @@
     <section id="pricing" class="pricing-band">
       <div>
         <p class="eyebrow">Founding offer</p>
-        <h2>Smooth chord changes with custom triad-safe progressions.</h2>
+        <h2>Practice the song, understand the progression.</h2>
         <p>
-          Founding access to a guitar trainer built for clear progression practice, custom chord changes, and close voice-leading.
+          Founding access to a guitar trainer that takes a lot of the thinking away, so you can practice custom progressions, close movement, and real fretboard understanding.
         </p>
       </div>
       <div class="price-card">
@@ -254,6 +335,22 @@
         <p>One-time early supporter price for the guitar trainer and future founding updates.</p>
         <button id="buyButton" class="primary full-button" type="button">Get Founding Access - $9</button>
         <small id="paymentStatus">Secure checkout on Gumroad.</small>
+      </div>
+    </section>
+
+    <section id="contact" class="contact-band" aria-label="Contact FretFlow Trainer">
+      <div>
+        <p class="eyebrow">Contact us</p>
+        <h2>Questions, suggestions, and feature wishes.</h2>
+        <p>
+          Send ideas for the trainer, chord features you wish it had, or questions about how to use it with a song you are practicing.
+        </p>
+      </div>
+      <div class="contact-card">
+        <span class="script-badge">Developer recommendation</span>
+        <p>Use a dedicated support email so customer ideas stay separate from personal mail.</p>
+        <a id="contactEmailLink" class="contact-button" href="#contact">Email FretFlow</a>
+        <small id="contactEmailStatus">Add a public support email before publishing this contact link.</small>
       </div>
     </section>
   </main>
@@ -266,6 +363,6 @@
     </form>
   </dialog>
 
-  <script src="script.js?v=20260528-chordmap"></script>
+  <script src="script.js?v=20260529-contact"></script>
 </body>
 </html>
