@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>FretFlow Trainer</title>
-  <meta name="description" content="A practical guitar trainer for progressions, close voice-leading, chord blocks, pentatonic boxes, Nashville numbers, and daily practice.">
+  <meta name="description" content="A practical guitar trainer for custom progressions, close voice-leading, any string combination, real-time tempo control, chord tones, scales, and daily practice.">
   <meta name="theme-color" content="#141718">
-  <link rel="stylesheet" href="styles.css?v=20260529-contact">
+  <link rel="stylesheet" href="styles.css?v=20260529-devteam">
 </head>
 <body>
   <main class="app">
@@ -28,6 +28,34 @@
         <a class="nav-cta" href="#pricing">Get Access</a>
       </nav>
     </header>
+
+    <section id="access" class="access-band" aria-label="FretFlow access">
+      <div class="access-copy">
+        <p class="eyebrow">Free demo</p>
+        <h1>Try the guided trainer. Unlock the full fretboard.</h1>
+        <p>
+          Visitors can test one polished progression. Founding access unlocks custom progressions, any string combination,
+          real-time progression movement at any tempo, advanced chords and scales, the practice lab, and progress tracking.
+        </p>
+        <div class="access-pills" aria-label="Premium features">
+          <span>Custom progressions</span>
+          <span>Any strings</span>
+          <span>Any tempo</span>
+          <span>Advanced chords</span>
+          <span>Practice progress</span>
+        </div>
+      </div>
+      <form id="accessForm" class="access-card">
+        <span id="accessStatus" class="script-badge">Demo mode</span>
+        <label>
+          Founding access code
+          <input id="accessCode" type="text" autocomplete="off" placeholder="Enter access code">
+        </label>
+        <button id="unlockButton" type="submit">Unlock Full Trainer</button>
+        <button id="buyAccessButton" class="primary" type="button">Get Founding Access - $9</button>
+        <small id="accessHelp">Demo includes G: 1 - 6m - 4 - 5 on a fixed string set.</small>
+      </form>
+    </section>
 
     <section id="trainer" class="trainer-shell">
       <aside class="control-rail" aria-label="Trainer controls">
@@ -192,6 +220,25 @@
         </div>
 
         <div class="lesson-strip" id="lessonStrip"></div>
+
+        <section class="progress-panel premium-feature" aria-label="Practice progress" data-lock-label="Founding access unlocks progress tracking">
+          <div class="progress-copy">
+            <span class="small-label">Progress</span>
+            <strong id="progressToday">Today: 0 / 3</strong>
+            <p id="progressHint">Check off the daily drill steps to start your streak.</p>
+          </div>
+          <div class="progress-metrics" aria-label="Practice totals">
+            <div>
+              <span>Streak</span>
+              <strong id="progressStreak">0 days</strong>
+            </div>
+            <div>
+              <span>Sessions</span>
+              <strong id="progressSessions">0</strong>
+            </div>
+          </div>
+          <div class="progress-chart" id="progressChart" aria-label="Last seven days progress"></div>
+        </section>
       </section>
 
       <aside class="practice-rail" aria-label="Practice details">
@@ -248,7 +295,11 @@
           </li>
           <li>
             <strong>Move slowly.</strong>
-            <span>Press Play, say the numbers out loud, then use Next to find the closest clean grip.</span>
+            <span>Press Play, set any tempo, watch the progression move in real time, then use Next to find the closest clean grip.</span>
+          </li>
+          <li>
+            <strong>Choose your strings.</strong>
+            <span>Use any string combination, from one tight chord block to the whole fretboard.</span>
           </li>
         </ol>
       </div>
@@ -257,7 +308,7 @@
         <h3>30-second voiceover</h3>
         <p>
           Quit staring at chord sheets. Put the progression from your song into FretFlow and see practical ways to move between the chords.
-          It takes a lot of the thinking away. Follow the 1, 3, and 5, choose close grips, and start understanding why the chords work together.
+          Watch it move in real time at any tempo. Follow the 1, 3, and 5, choose close grips, and start understanding why the chords work together.
         </p>
         <div class="shot-list">
           <span>Type song chords</span>
@@ -268,7 +319,7 @@
       </div>
     </section>
 
-    <section id="practice-lab" class="practice-lab-band" aria-label="Practice Lab">
+    <section id="practice-lab" class="practice-lab-band premium-feature" aria-label="Practice Lab" data-lock-label="Founding access unlocks the practice lab">
       <div class="lab-head">
         <p class="eyebrow">Practice lab</p>
         <h2>Advanced tools stay here, so the trainer stays clean.</h2>
@@ -295,7 +346,7 @@
         <article class="lab-card">
           <span class="script-badge">Advanced</span>
           <h3>7th chords and full scales</h3>
-          <p>Try the new 2m7-57-1maj7 style presets, then switch Pentatonic to major, natural minor, or harmonic minor scale practice.</p>
+          <p>Try the new 2m7-5dom7-1maj7 style presets, then switch Pentatonic to major, natural minor, or harmonic minor scale practice.</p>
           <div id="advancedProgressions" class="lab-choice-grid"></div>
         </article>
       </div>
@@ -304,14 +355,16 @@
     <section class="triad-demo-band" aria-label="Triad-safe progression builder">
       <div>
         <p class="eyebrow">Triad-safe engine</p>
-        <h2>Custom progressions that build chord understanding.</h2>
+        <h2>Custom progressions, any strings, endless chord paths.</h2>
         <p>
-          Enter Nashville numbers or chord names from the song you are working on. The trainer favors complete chord tones and close movement before doubled notes.
+          Enter Nashville numbers or chord names from the song you are working on. Pick any combination of strings, build almost any chords you can imagine, set any tempo, and watch FretFlow move through the progression in real time.
         </p>
         <div class="example-row" aria-label="Example custom progressions">
           <span>G D/F# Em7 Cadd9</span>
           <span>1 6m 4 5</span>
           <span>Cmaj7 Am7 D9 G</span>
+          <span>D G B strings</span>
+          <span>maj7 m7 add9 sus4</span>
         </div>
       </div>
       <div class="triad-clip" aria-label="Animated triad example">
@@ -326,15 +379,43 @@
         <p class="eyebrow">Founding offer</p>
         <h2>Practice the song, understand the progression.</h2>
         <p>
-          Founding access to a guitar trainer that takes a lot of the thinking away, so you can practice custom progressions, close movement, and real fretboard understanding.
+          Founding access to a guitar trainer that takes a lot of the thinking away. Put in the song, choose the strings, set the tempo, and watch the progression move while you explore new chord paths.
         </p>
       </div>
       <div class="price-card">
         <span>Founding Access</span>
         <strong>$9</strong>
-        <p>One-time early supporter price for the guitar trainer and future founding updates.</p>
+        <p>One-time early supporter price for custom progressions, any-string practice, chord tones, scales, and future founding updates.</p>
         <button id="buyButton" class="primary full-button" type="button">Get Founding Access - $9</button>
         <small id="paymentStatus">Secure checkout on Gumroad.</small>
+      </div>
+    </section>
+
+    <section id="development" class="development-band" aria-label="FretFlow development team">
+      <div>
+        <p class="eyebrow">FretFlow Development Team</p>
+        <h2>Built with subscriber feedback.</h2>
+        <p>
+          FretFlow is actively watched and improved. Subscriber questions, feature wishes, and real practice problems help decide what gets built next.
+        </p>
+      </div>
+      <div class="development-card">
+        <span class="script-badge">Coming soon</span>
+        <h3>Subscriber update desk</h3>
+        <ul class="development-list" aria-label="Coming FretFlow development updates">
+          <li>
+            <strong>Feature requests</strong>
+            <span>Ideas from players turned into practical trainer updates.</span>
+          </li>
+          <li>
+            <strong>New practice tools</strong>
+            <span>More chord movement, scale, rhythm, and song-study helpers.</span>
+          </li>
+          <li>
+            <strong>Release notes</strong>
+            <span>A simple place to see what changed and what is being tested.</span>
+          </li>
+        </ul>
       </div>
     </section>
 
@@ -363,6 +444,6 @@
     </form>
   </dialog>
 
-  <script src="script.js?v=20260529-contact"></script>
+  <script src="script.js?v=20260529-access"></script>
 </body>
 </html>
