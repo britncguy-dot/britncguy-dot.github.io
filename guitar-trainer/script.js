@@ -371,12 +371,17 @@ function getFretPositionsForMidiClasses(classes, modeClass, rootClass, suggested
   return positions;
 }
 
-function stringToneCandidates(string, toneClasses) {
+function chordToneIndexForMidi(midi, item) {
+  return chordIntervals(item.quality).findIndex(interval => mod(item.rootMidi + interval, 12) === mod(midi, 12));
+}
+
+function stringToneCandidates(string, item) {
+  const toneClasses = chordToneMidis(item).map(midi => mod(midi, 12));
   const candidates = [];
   for (let fret = 0; fret <= MAX_FRET; fret += 1) {
     const midi = string.midi + fret;
     if (toneClasses.includes(mod(midi, 12))) {
-      candidates.push({ stringId: string.id, fret, midi });
+      candidates.push({ stringId: string.id, fret, midi, toneIndex: chordToneIndexForMidi(midi, item) });
     }
   }
   return candidates;
@@ -407,23 +412,60 @@ function positionsFromGrip(item, grip, modeClass = "chord") {
 }
 
 function suggestedChordGrip(item, previousGrip = null, block = currentBlock()) {
-  const toneClasses = chordToneMidis(item).map(midi => mod(midi, 12));
-  const grip = {};
-  selectedStringObjects().forEach(string => {
+  const strings = selectedStringObjects();
+  const candidateLists = strings.map(string => {
     const target = previousGrip?.[string.id] ?? block.center;
-    const candidates = stringToneCandidates(string, toneClasses);
-    const best = candidates
+    return stringToneCandidates(string, item)
       .map(candidate => ({
         ...candidate,
-        score:
+        localScore:
           Math.abs(candidate.fret - target) * 7 +
           Math.abs(candidate.fret - block.center) * 2 +
           (candidate.fret < block.min || candidate.fret > block.max ? 40 : 0),
       }))
-      .sort((a, b) => a.score - b.score)[0];
-    if (best) grip[string.id] = best.fret;
+      .sort((a, b) => a.localScore - b.localScore)
+      .slice(0, 8);
   });
-  return grip;
+
+  if (candidateLists.some(candidates => !candidates.length)) return {};
+
+  const toneCount = chordIntervals(item.quality).length;
+  let bestChoice = null;
+  let bestScore = Number.POSITIVE_INFINITY;
+
+  function scoreChoice(choice) {
+    const covered = new Set(choice.map(candidate => candidate.toneIndex));
+    const wantedCoverage = Math.min(toneCount, choice.length);
+    const missingTonePenalty = Math.max(0, wantedCoverage - covered.size) * 1400;
+    const duplicatePenalty = Math.max(0, choice.length - covered.size) * 18;
+    const frets = choice.map(candidate => candidate.fret);
+    const spanPenalty = (Math.max(...frets) - Math.min(...frets)) * 5;
+    const localScore = choice.reduce((sum, candidate) => sum + candidate.localScore, 0);
+    return missingTonePenalty + duplicatePenalty + spanPenalty + localScore;
+  }
+
+  function walk(index, choice) {
+    if (index === candidateLists.length) {
+      const score = scoreChoice(choice);
+      if (score < bestScore) {
+        bestScore = score;
+        bestChoice = choice.slice();
+      }
+      return;
+    }
+    candidateLists[index].forEach(candidate => {
+      choice.push(candidate);
+      walk(index + 1, choice);
+      choice.pop();
+    });
+  }
+
+  walk(0, []);
+
+  return (bestChoice || []).reduce((grip, candidate) => {
+    grip[candidate.stringId] = candidate.fret;
+    return grip;
+  }, {});
 }
 
 function voiceLeadingGrips(items, block = currentBlock()) {
@@ -442,7 +484,7 @@ function gripMidis(grip) {
 }
 
 function gripSummary(grip) {
-  const summary = selectedStringObjects()
+  const summary = selectedStringObjectsLowToHigh()
     .filter(string => Number.isInteger(grip[string.id]))
     .map(string => `${string.label}${grip[string.id]}`);
   return summary.length ? summary.join(" ") : "no lane";
@@ -460,7 +502,7 @@ function gripMovementDetail(grips, index) {
 }
 
 function gripToneLabels(item, grip) {
-  const labels = selectedStringObjects()
+  const labels = selectedStringObjectsLowToHigh()
     .filter(string => Number.isInteger(grip[string.id]))
     .map(string => toneLabel(string.midi + grip[string.id], item.rootMidi));
   return labels.length ? labels.join(", ") : "none";
