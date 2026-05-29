@@ -1,5 +1,6 @@
 const CONFIG = {
   paymentUrl: "https://brittle342.gumroad.com/l/fretflow-trainer",
+  contactEmail: "fretflowtrainer@outlook.com",
   priceLabel: "$9",
 };
 
@@ -13,6 +14,7 @@ const STRINGS = [
   { id: "lowE", label: "E", midi: 40 },
 ];
 const MAX_FRET = 12;
+const OPEN_STRING_OFFSET = 0.9;
 const KEYS = ["C", "G", "D", "A", "E", "F", "Bb"];
 const DEGREE_STEPS = [0, 2, 4, 5, 7, 9, 11];
 const DEGREE_LABELS = ["1", "b2", "2", "b3", "3", "4", "b5", "5", "b6", "6", "b7", "7"];
@@ -43,6 +45,9 @@ const QUALITY_INTERVALS = {
   m9: [0, 3, 7, 10, 14],
 };
 const SCALE_INTERVALS = {
+  majorScale: [0, 2, 4, 5, 7, 9, 11],
+  naturalMinor: [0, 2, 3, 5, 7, 8, 10],
+  harmonicMinor: [0, 2, 3, 5, 7, 8, 11],
   minorPentatonic: [0, 3, 5, 7, 10],
   majorPentatonic: [0, 2, 4, 7, 9],
   blues: [0, 3, 5, 6, 7, 10],
@@ -65,7 +70,19 @@ const PROGRESSION_PRESETS = [
   { id: "church", label: "1 4 5 1", value: "1 4 5 1", daily: "Resolve back home cleanly." },
   { id: "blues", label: "1 4 1 5", value: "1 4 1 5", daily: "Keep the groove steady and do not rush the 5." },
   { id: "sad", label: "6m 4 1 5", value: "6m 4 1 5", daily: "Start minor and hear how it opens back home." },
+  { id: "ii-v-i", label: "2m7 5dom7 1maj7", value: "2m7 5dom7 1maj7", daily: "Jazz move: minor 2, dominant 5, major 1.", lab: true },
+  { id: "turnaround", label: "1maj7 6m7 2m7 5dom7", value: "1maj7 6m7 2m7 5dom7", daily: "Turnaround: hear the path back to the 1.", lab: true },
+  { id: "minor-jazz", label: "6m7 2m7 5dom7 1maj7", value: "6m7 2m7 5dom7 1maj7", daily: "Advanced loop: keep each 7th chord grip close.", lab: true },
   { id: "custom", label: "Custom", value: "1 6m 4 5", daily: "Type your own numbers or chord names." },
+];
+
+const NOTE_FINDER_TARGETS = ["C", "D", "E", "F", "G", "A", "B", "C#", "F#", "Bb"];
+const CHORD_TRIVIA = [
+  { tones: ["C", "E", "G"], answer: "C major", choices: ["C major", "C minor", "G major"] },
+  { tones: ["A", "C", "E"], answer: "A minor", choices: ["A minor", "A major", "C major"] },
+  { tones: ["G", "B", "D", "F"], answer: "G7", choices: ["G7", "Gmaj7", "Gm7"] },
+  { tones: ["D", "F", "A", "C"], answer: "Dm7", choices: ["Dm7", "D7", "Dmaj7"] },
+  { tones: ["B", "D", "F", "A"], answer: "Bm7b5", choices: ["Bm7b5", "Bmaj7", "B7"] },
 ];
 
 const els = {
@@ -105,6 +122,17 @@ const els = {
   buyButton: document.getElementById("buyButton"),
   paymentStatus: document.getElementById("paymentStatus"),
   paymentDialog: document.getElementById("paymentDialog"),
+  noteFinderTarget: document.getElementById("noteFinderTarget"),
+  noteFinderHint: document.getElementById("noteFinderHint"),
+  newNoteTarget: document.getElementById("newNoteTarget"),
+  showNoteHint: document.getElementById("showNoteHint"),
+  chordTriviaQuestion: document.getElementById("chordTriviaQuestion"),
+  chordTriviaChoices: document.getElementById("chordTriviaChoices"),
+  chordTriviaFeedback: document.getElementById("chordTriviaFeedback"),
+  nextChordTrivia: document.getElementById("nextChordTrivia"),
+  advancedProgressions: document.getElementById("advancedProgressions"),
+  contactEmailLink: document.getElementById("contactEmailLink"),
+  contactEmailStatus: document.getElementById("contactEmailStatus"),
 };
 
 let state = {
@@ -124,6 +152,15 @@ let state = {
 };
 let audioContext;
 let transitionTimers = [];
+let labState = {
+  noteTarget: "G",
+  chordTriviaIndex: 0,
+};
+
+function normalizeMode(mode, allowLab = false) {
+  const modes = allowLab ? ["progression", "pentatonic", "chordtones", "notefinder"] : ["progression", "pentatonic", "chordtones"];
+  return modes.includes(mode) ? mode : "progression";
+}
 
 function mod(value, size) {
   return ((value % size) + size) % size;
@@ -140,6 +177,15 @@ function noteName(midi) {
 
 function degreeLabel(midi, rootMidi) {
   return DEGREE_LABELS[mod(midi - rootMidi, 12)];
+}
+
+function degreeClassName(value) {
+  const safeValue = String(value || "")
+    .replace("#", "sharp")
+    .replace("b", "flat")
+    .replace(/[^a-z0-9-]/gi, "")
+    .toLowerCase();
+  return safeValue ? `degree-${safeValue}` : "";
 }
 
 function solfegeLabel(midi, rootMidi) {
@@ -275,7 +321,7 @@ function parseProgression(text) {
 
 function parseToken(token) {
   const clean = token.trim();
-  const degreeMatch = clean.match(/^([b#]?)([1-7])(maj9|maj7|madd9|m7b5|dim7|min9|min7|m9|m7|min|maj|add9|sus2|sus4|dim|aug|m6|6|9|7|m|\+)?$/i);
+  const degreeMatch = clean.match(/^([b#]?)([1-7])(maj9|maj7|madd9|m7b5|dim7|dom7|min9|min7|m9|m7|min|maj|add9|sus2|sus4|dim|aug|m6|6|9|7|m|\+)?$/i);
   if (degreeMatch) {
     const accidental = degreeMatch[1] === "b" ? -1 : degreeMatch[1] === "#" ? 1 : 0;
     const degree = Number(degreeMatch[2]);
@@ -291,7 +337,7 @@ function parseToken(token) {
       detail: `${degreeName(degree)} in ${state.key}`,
     };
   }
-  const chordMatch = clean.match(/^([A-G](?:#|b)?)(maj9|maj7|madd9|m7b5|dim7|min9|min7|m9|m7|min|maj|add9|sus2|sus4|dim|aug|m6|6|9|7|m|\+)?(?:\/([A-G](?:#|b)?))?$/i);
+  const chordMatch = clean.match(/^([A-G](?:#|b)?)(maj9|maj7|madd9|m7b5|dim7|dom7|min9|min7|m9|m7|min|maj|add9|sus2|sus4|dim|aug|m6|6|9|7|m|\+)?(?:\/([A-G](?:#|b)?))?$/i);
   if (chordMatch) {
     const rootName = chordMatch[1].replace("b", "b");
     const quality = normalizeQuality(chordMatch[2], "maj");
@@ -323,6 +369,7 @@ function normalizeQuality(suffix = "", fallback = "maj") {
     sus4: "sus4",
     "6": "6",
     m6: "m6",
+    dom7: "7",
     "7": "7",
     maj7: "maj7",
     min7: "m7",
@@ -403,6 +450,10 @@ function currentItems() {
     const rootMidi = 60 + noteIndex(state.chordRoot);
     return [{ token: state.chordRoot, name: chordName(state.chordRoot, state.chordQuality), rootMidi, rootName: state.chordRoot, quality: state.chordQuality, detail: chordQualityLabel(state.chordQuality) }];
   }
+  if (state.mode === "notefinder") {
+    const rootMidi = 60 + noteIndex(labState.noteTarget);
+    return [{ token: labState.noteTarget, name: `Find ${labState.noteTarget}`, rootMidi, rootName: labState.noteTarget, quality: "note", detail: "note finder" }];
+  }
   return [{ token: state.key, name: `${state.key} scale`, rootMidi: keyRootMidi(), rootName: state.key, quality: "scale", detail: scaleLabel() }];
 }
 
@@ -420,6 +471,9 @@ function chordToneNames(item) {
 
 function scaleLabel() {
   return {
+    majorScale: "major scale",
+    naturalMinor: "natural minor",
+    harmonicMinor: "harmonic minor",
     minorPentatonic: "minor pentatonic",
     majorPentatonic: "major pentatonic",
     blues: "blues scale",
@@ -619,18 +673,18 @@ function gripToneLabels(item, grip) {
 }
 
 function fretCenterX(fret, left, fretWidth) {
-  return fret === 0 ? left + fretWidth * 0.24 : left + (fret - 0.5) * fretWidth;
+  return fret === 0 ? left - fretWidth * OPEN_STRING_OFFSET : left + (fret - 0.5) * fretWidth;
 }
 
 function fretFingerX(fret, left, fretWidth) {
-  return fret === 0 ? left + fretWidth * 0.24 : left + fret * fretWidth - fretWidth * 0.16;
+  return fret === 0 ? left - fretWidth * OPEN_STRING_OFFSET : left + fret * fretWidth - fretWidth * 0.16;
 }
 
 function drawFretboard(positions) {
   els.fretboard.innerHTML = "";
   els.fretboard.dataset.mode = state.mode;
   els.fretboard.dataset.labelMode = state.labelMode;
-  const left = 6;
+  const left = 11.5;
   const right = 96;
   const top = 11;
   const bottom = 91;
@@ -687,6 +741,7 @@ function drawFretboard(positions) {
     const visibleLabel = state.labelMode === "degrees" ? position.degree : state.labelMode === "solfege" ? position.solfege : position.label;
     dot.type = "button";
     dot.className = `note-dot ${position.root ? "root" : position.modeClass} ${position.suggested ? "suggested" : ""} ${position.laneGhost ? "lane-ghost" : ""}`;
+    if (position.fret === 0) dot.classList.add("open-string");
     if (visibleLabel.length > 2) dot.classList.add("compact");
     dot.style.setProperty("--dot-delay", `${Math.min(index * 28, 280)}ms`);
     dot.style.left = `${fretFingerX(position.fret, left, fretWidth)}%`;
@@ -768,6 +823,30 @@ function renderChordTones() {
   renderLesson([`Chord: ${item.name}`, `Labels: ${labelModeName()}`, `Next: build one small grip`]);
 }
 
+function renderNoteFinder() {
+  const target = labState.noteTarget;
+  const targetClass = noteIndex(target);
+  const positions = getFretPositionsForMidiClasses([targetClass], "scale", targetClass)
+    .map(position => ({ ...position, label: target, degree: target, solfege: target }));
+  drawFretboard(positions);
+  setHeader("Note finder", `Find every ${target}`);
+  setNow(target, `Target note: click each ${target} on the active strings.`);
+  renderQueue(positions.slice(0, 8).map(position => {
+    const string = STRINGS.find(item => item.id === position.stringId);
+    return {
+      name: `${string?.label || position.stringId}${position.fret}`,
+      detail: position.fret === 0 ? "open string" : `fret ${position.fret}`,
+    };
+  }));
+  renderFlowLane([
+    { count: "?", name: `Find ${target}`, detail: "Look before you click" },
+    { count: "1", name: "Say it", detail: "String and fret" },
+    { count: "2", name: "Play it", detail: "Hear the note" },
+  ], null, "Note finder");
+  renderLegend(["Gold = target note", "Open notes sit before the nut", "Change strings to focus"]);
+  renderLesson([`Target: ${target}`, "Action: say string and fret", "Next: new note"]);
+}
+
 function setHeader(eyebrow, title) {
   els.modeEyebrow.textContent = eyebrow;
   els.mainTitle.textContent = title;
@@ -825,6 +904,10 @@ function renderFlowLane(items, activeIndex, label, variant = "") {
   items.forEach((item, index) => {
     const node = document.createElement(state.mode === "progression" ? "button" : "span");
     node.className = "flow-node";
+    if (variant === "tone-map") {
+      const toneClass = degreeClassName(item.count);
+      if (toneClass) node.classList.add(toneClass);
+    }
     if (Number.isInteger(activeIndex) && index === activeIndex) node.classList.add("active");
     if (state.mode === "progression" && index < activeIndex) node.classList.add("complete");
     if (node.tagName === "BUTTON") {
@@ -853,10 +936,15 @@ function render() {
   if (state.mode === "progression") renderProgression();
   if (state.mode === "pentatonic") renderPentatonic();
   if (state.mode === "chordtones") renderChordTones();
+  if (state.mode === "notefinder") renderNoteFinder();
   saveState();
 }
 
 function playCurrent() {
+  if (state.mode === "notefinder") {
+    playMidiSet([60 + noteIndex(labState.noteTarget)]);
+    return;
+  }
   if (state.mode === "pentatonic") {
     playScaleRun();
     return;
@@ -917,11 +1005,100 @@ function saveState() {
   localStorage.setItem("britGuitarTrainerState", JSON.stringify(state));
 }
 
+function renderLab() {
+  if (!els.noteFinderTarget || !els.chordTriviaChoices) return;
+  els.noteFinderTarget.textContent = `Find ${labState.noteTarget}`;
+  els.noteFinderHint.textContent = `Find every ${labState.noteTarget} on the active strings. Start slow and say the string name out loud.`;
+  renderChordTrivia();
+  renderAdvancedProgressions();
+  renderContactLink();
+}
+
+function renderChordTrivia() {
+  const item = CHORD_TRIVIA[labState.chordTriviaIndex % CHORD_TRIVIA.length];
+  els.chordTriviaQuestion.textContent = item.tones.join(" - ");
+  els.chordTriviaFeedback.textContent = "Pick the chord name that matches the notes.";
+  els.chordTriviaChoices.innerHTML = "";
+  item.choices.forEach(choice => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = choice;
+    button.addEventListener("click", () => {
+      const correct = choice === item.answer;
+      button.classList.add(correct ? "correct" : "incorrect");
+      els.chordTriviaFeedback.textContent = correct ? "Correct. That note stack names the chord." : `Close. The answer is ${item.answer}.`;
+    });
+    els.chordTriviaChoices.appendChild(button);
+  });
+}
+
+function renderAdvancedProgressions() {
+  if (!els.advancedProgressions) return;
+  els.advancedProgressions.innerHTML = "";
+  PROGRESSION_PRESETS.filter(preset => preset.lab).forEach(preset => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = preset.label;
+    button.addEventListener("click", () => {
+      setMode("progression");
+      state.presetId = preset.id;
+      state.progression = preset.value;
+      els.customProgression.value = preset.value;
+      els.dailyCopy.textContent = preset.daily;
+      [...els.progressionPresets.children].forEach(child => child.classList.remove("active"));
+      render();
+      document.getElementById("trainer")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    els.advancedProgressions.appendChild(button);
+  });
+}
+
+function renderContactLink() {
+  if (!els.contactEmailLink || !els.contactEmailStatus) return;
+  if (!CONFIG.contactEmail) {
+    els.contactEmailLink.removeAttribute("href");
+    els.contactEmailLink.setAttribute("aria-disabled", "true");
+    els.contactEmailStatus.textContent = "Add a public support email before publishing this contact link.";
+    return;
+  }
+  const subject = encodeURIComponent("FretFlow Trainer question or feature idea");
+  const body = encodeURIComponent("Hi, I have a question or feature idea for FretFlow Trainer:\n\n");
+  els.contactEmailLink.href = `mailto:${CONFIG.contactEmail}?subject=${subject}&body=${body}`;
+  els.contactEmailLink.removeAttribute("aria-disabled");
+  els.contactEmailStatus.textContent = `Send trainer questions and feature wishes to ${CONFIG.contactEmail}.`;
+}
+
+function nextNoteTarget() {
+  const currentIndex = NOTE_FINDER_TARGETS.indexOf(labState.noteTarget);
+  labState.noteTarget = NOTE_FINDER_TARGETS[(currentIndex + 1) % NOTE_FINDER_TARGETS.length];
+  renderLab();
+  if (state.mode === "notefinder") render();
+}
+
+function syncModeControls() {
+  state.mode = normalizeMode(state.mode, true);
+  els.modeTabs.forEach(tab => {
+    tab.classList.toggle("active", tab.dataset.mode === state.mode);
+  });
+  els.modePanels.forEach(panel => {
+    panel.classList.toggle("hidden", panel.dataset.panel !== state.mode);
+  });
+}
+
+function setMode(mode) {
+  clearTransitionTimers();
+  state.mode = normalizeMode(mode, true);
+  state.stepIndex = 0;
+  syncModeControls();
+}
+
 function loadState() {
   try {
     const saved = JSON.parse(localStorage.getItem("britGuitarTrainerState"));
     if (saved) state = { ...state, ...saved };
+    state.mode = normalizeMode(state.mode);
     if (!LABEL_MODE_NAMES[state.labelMode]) state.labelMode = "notes";
+    if (!SCALE_INTERVALS[state.scaleType]) state.scaleType = "minorPentatonic";
     if (!CHORD_BLOCKS[state.progressionBlock]) state.progressionBlock = "middle";
   } catch {
     state = { ...state };
@@ -953,17 +1130,16 @@ function hydrateControls() {
     });
     els.stringSet.appendChild(label);
   });
-  PROGRESSION_PRESETS.forEach(preset => {
+  PROGRESSION_PRESETS.filter(preset => !preset.lab).forEach(preset => {
     const button = document.createElement("button");
     button.type = "button";
     button.textContent = preset.label;
     button.dataset.preset = preset.id;
     if (preset.id === state.presetId) button.classList.add("active");
     button.addEventListener("click", () => {
-      clearTransitionTimers();
+      setMode("progression");
       state.presetId = preset.id;
       state.progression = preset.value;
-      state.stepIndex = 0;
       els.customProgression.value = preset.value;
       els.dailyCopy.textContent = preset.daily;
       [...els.progressionPresets.children].forEach(child => child.classList.toggle("active", child.dataset.preset === preset.id));
@@ -984,6 +1160,7 @@ function hydrateControls() {
   els.blockButtons.forEach(button => {
     button.classList.toggle("active", button.dataset.progressionBlock === state.progressionBlock);
   });
+  syncModeControls();
   els.tempoValue.textContent = `${els.tempoRange.value} bpm`;
   try {
     const checks = JSON.parse(localStorage.getItem("britGuitarTrainerChecks"));
@@ -992,16 +1169,13 @@ function hydrateControls() {
     // Leave defaults.
   }
   updateChecks();
+  renderLab();
 }
 
 function bindEvents() {
   els.modeTabs.forEach(tab => {
     tab.addEventListener("click", () => {
-      clearTransitionTimers();
-      state.mode = tab.dataset.mode;
-      state.stepIndex = 0;
-      els.modeTabs.forEach(item => item.classList.toggle("active", item === tab));
-      els.modePanels.forEach(panel => panel.classList.toggle("hidden", panel.dataset.panel !== state.mode));
+      setMode(tab.dataset.mode);
       render();
     });
   });
@@ -1026,7 +1200,7 @@ function bindEvents() {
     });
   });
   els.applyProgression.addEventListener("click", () => {
-    clearTransitionTimers();
+    setMode("progression");
     state.progression = els.customProgression.value || "1 6m 4 5";
     state.stepIndex = 0;
     render();
@@ -1053,6 +1227,17 @@ function bindEvents() {
   });
   els.playScale.addEventListener("click", playScaleRun);
   els.playChord.addEventListener("click", playCurrent);
+  els.newNoteTarget?.addEventListener("click", () => {
+    nextNoteTarget();
+  });
+  els.showNoteHint?.addEventListener("click", () => {
+    setMode("notefinder");
+    render();
+  });
+  els.nextChordTrivia?.addEventListener("click", () => {
+    labState.chordTriviaIndex = (labState.chordTriviaIndex + 1) % CHORD_TRIVIA.length;
+    renderLab();
+  });
   els.checks.forEach(check => check.addEventListener("change", updateChecks));
   els.buyButton.addEventListener("click", () => {
     if (CONFIG.paymentUrl) {
