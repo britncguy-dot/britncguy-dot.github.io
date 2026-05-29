@@ -787,6 +787,181 @@ label {
   color: var(--muted);
 }
 
+.triad-demo-band {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+  gap: 20px;
+  align-items: center;
+  margin: 0 16px 16px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(143, 199, 255, .12), transparent 35%),
+    linear-gradient(135deg, rgba(22, 28, 29, .96), rgba(31, 36, 34, .94));
+  box-shadow: var(--shadow-tight);
+  overflow: hidden;
+  position: relative;
+}
+
+.triad-demo-band::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(90deg, rgba(247, 214, 154, .05) 0 1px, transparent 1px 70px),
+    linear-gradient(90deg, transparent, rgba(138, 223, 186, .06), transparent);
+  pointer-events: none;
+}
+
+.triad-demo-band > * {
+  position: relative;
+  z-index: 1;
+}
+
+.triad-demo-band h2 {
+  margin-top: 8px;
+  font-size: clamp(24px, 3vw, 40px);
+  line-height: 1.1;
+}
+
+.triad-demo-band p {
+  margin-top: 8px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.example-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.example-row span {
+  padding: 8px 10px;
+  border: 1px solid rgba(248, 242, 231, .14);
+  border-radius: 8px;
+  color: var(--ink);
+  background: rgba(12, 15, 16, .42);
+  font-weight: 800;
+}
+
+.triad-clip {
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+  padding: 14px;
+  border: 1px solid rgba(248, 242, 231, .14);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.065), rgba(255,255,255,.02)),
+    rgba(12, 15, 16, .52);
+}
+
+.triad-clip strong {
+  color: var(--gold);
+  font-size: 24px;
+}
+
+.triad-clip small {
+  color: var(--muted);
+}
+
+.mini-fretboard {
+  position: relative;
+  width: 100%;
+  min-height: 160px;
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 8px;
+  overflow: hidden;
+  background:
+    repeating-linear-gradient(90deg, rgba(52, 19, 10, .32) 0 4px, transparent 4px 72px),
+    linear-gradient(180deg, #cf7d3c, #8e3d1f);
+  box-shadow: inset 0 0 24px rgba(0, 0, 0, .34);
+}
+
+.mini-string,
+.mini-fret,
+.triad-dot {
+  position: absolute;
+}
+
+.mini-string {
+  left: 8%;
+  right: 8%;
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #fff2c8, var(--string), #60401d);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .45);
+}
+
+.mini-string.one {
+  top: 30%;
+}
+
+.mini-string.two {
+  top: 50%;
+}
+
+.mini-string.three {
+  top: 70%;
+}
+
+.mini-fret {
+  top: 12%;
+  bottom: 12%;
+  width: 5px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #6c573a, #fff2cf, #9d8358);
+}
+
+.mini-fret.a {
+  left: 24%;
+}
+
+.mini-fret.b {
+  left: 50%;
+}
+
+.mini-fret.c {
+  left: 76%;
+}
+
+.triad-dot {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  transform: translate(-50%, -50%);
+  border: 2px solid rgba(255,255,255,.84);
+  border-radius: 50%;
+  color: #101314;
+  font-weight: 900;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.54), 0 8px 18px rgba(0,0,0,.35);
+  animation: triadPop 3.6s ease-in-out infinite;
+}
+
+.dot-one {
+  left: 25%;
+  top: 70%;
+  background: var(--gold);
+}
+
+.dot-three {
+  left: 50%;
+  top: 50%;
+  background: var(--green);
+  animation-delay: .18s;
+}
+
+.dot-five {
+  left: 75%;
+  top: 30%;
+  background: var(--blue);
+  animation-delay: .36s;
+}
+
 .pricing-band {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 300px;
@@ -917,6 +1092,19 @@ code {
   }
   50% {
     border-color: rgba(143, 199, 255, .82);
+  }
+}
+
+@keyframes triadPop {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  45% {
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+  62% {
+    transform: translate(-50%, -50%) scale(1);
   }
 }
 
@@ -1230,12 +1418,14 @@ code {
 @media (max-width: 760px) {
   .topbar,
   .practice-header,
+  .triad-demo-band,
   .pricing-band {
     align-items: stretch;
     flex-direction: column;
   }
 
   .trainer-shell,
+  .triad-demo-band,
   .pricing-band,
   .practice-rail {
     grid-template-columns: 1fr;
