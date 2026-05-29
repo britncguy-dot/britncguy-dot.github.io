@@ -80,6 +80,7 @@ const els = {
   previousButton: document.getElementById("previousButton"),
   playButton: document.getElementById("playButton"),
   nextButton: document.getElementById("nextButton"),
+  flowLane: document.getElementById("flowLane"),
   fretboard: document.getElementById("fretboard"),
   legend: document.getElementById("legend"),
   lessonStrip: document.getElementById("lessonStrip"),
@@ -224,6 +225,7 @@ function playMidiSet(midis, delay = 0.045) {
 function clearTransitionTimers() {
   transitionTimers.forEach(timer => clearTimeout(timer));
   transitionTimers = [];
+  document.body.classList.remove("is-playing");
 }
 
 function keyRootMidi() {
@@ -474,6 +476,8 @@ function fretFingerX(fret, left, fretWidth) {
 
 function drawFretboard(positions) {
   els.fretboard.innerHTML = "";
+  els.fretboard.dataset.mode = state.mode;
+  els.fretboard.dataset.labelMode = state.labelMode;
   const left = 6;
   const right = 96;
   const top = 11;
@@ -525,13 +529,14 @@ function drawFretboard(positions) {
     els.fretboard.appendChild(number);
   }
 
-  positions.forEach(position => {
+  positions.forEach((position, index) => {
     const stringIndex = STRINGS.findIndex(string => string.id === position.stringId);
     const dot = document.createElement("button");
     const visibleLabel = state.labelMode === "degrees" ? position.degree : state.labelMode === "solfege" ? position.solfege : position.label;
     dot.type = "button";
     dot.className = `note-dot ${position.root ? "root" : position.modeClass} ${position.suggested ? "suggested" : ""} ${position.laneGhost ? "lane-ghost" : ""}`;
     if (visibleLabel.length > 2) dot.classList.add("compact");
+    dot.style.setProperty("--dot-delay", `${Math.min(index * 28, 280)}ms`);
     dot.style.left = `${fretFingerX(position.fret, left, fretWidth)}%`;
     dot.style.top = `${top + stringIndex * stringGap}%`;
     dot.textContent = visibleLabel;
@@ -555,6 +560,7 @@ function renderProgression() {
   setHeader("Progression trainer", `${state.key}: ${items.map(i => i.name).join(" - ")}`);
   setNow(item.name, `${block.short}: ${gripSummary(suggested)} | ${toneLabelHeading()}: ${gripToneLabels(item, suggested)}`);
   renderQueue(items.map((entry, index) => ({ ...entry, detail: `${gripSummary(grips[index] || {})} | ${gripMovementDetail(grips, index)}` })));
+  renderFlowLane(items.map((entry, index) => ({ ...entry, detail: gripMovementDetail(grips, index) })), state.stepIndex, "Voice path");
   renderLegend(["Gold = root", "Green = fretted chord note", "Only this chord block is lit", labelLegend()]);
   renderLesson([`Block: ${block.label}`, `Only: fretted notes`, `Next: slow move to nearest grip`]);
 }
@@ -579,6 +585,10 @@ function renderPentatonic() {
     name: toneLabel(midi, keyRootMidi()),
     detail: state.labelMode === "notes" ? `Scale tone ${index + 1}` : `${noteName(midi)} - scale tone ${index + 1}`,
   })));
+  renderFlowLane(toneMidis.map((midi, index) => ({
+    name: toneLabel(midi, keyRootMidi()),
+    detail: `Tone ${index + 1}`,
+  })), 0, "Tone path");
   renderLegend(["Gold = root", "Blue = scale note", "Purple = blue note", labelLegend()]);
   renderLesson([`Box: ${state.box === "all" ? "all" : Number(state.box) + 1}`, `Labels: ${labelModeName()}`, `Next: make one small lick`]);
 }
@@ -596,6 +606,10 @@ function renderChordTones() {
     name: toneLabel(midi, item.rootMidi),
     detail: state.labelMode === "notes" ? `Chord tone ${index + 1}` : `${noteName(midi)} - chord tone ${index + 1}`,
   })));
+  renderFlowLane(chordToneMidis(item).map((midi, index) => ({
+    name: toneLabel(midi, item.rootMidi),
+    detail: noteName(midi),
+  })), 0, "Chord map");
   renderLegend(["Gold = root", "Green = chord tone", "Ring = suggested grip", labelLegend()]);
   renderLesson([`Chord: ${item.name}`, `Labels: ${labelModeName()}`, `Next: build one small grip`]);
 }
@@ -646,7 +660,41 @@ function renderLesson(items) {
   });
 }
 
+function renderFlowLane(items, activeIndex, label) {
+  if (!els.flowLane) return;
+  els.flowLane.innerHTML = "";
+  const laneLabel = document.createElement("span");
+  laneLabel.className = "flow-label";
+  laneLabel.textContent = label;
+  els.flowLane.appendChild(laneLabel);
+  items.forEach((item, index) => {
+    const node = document.createElement(state.mode === "progression" ? "button" : "span");
+    node.className = "flow-node";
+    if (index === activeIndex) node.classList.add("active");
+    if (state.mode === "progression" && index < activeIndex) node.classList.add("complete");
+    if (node.tagName === "BUTTON") {
+      node.type = "button";
+      node.addEventListener("click", () => {
+        clearTransitionTimers();
+        state.stepIndex = index;
+        render();
+      });
+    }
+
+    const count = document.createElement("span");
+    count.className = "flow-count";
+    count.textContent = `${index + 1}`;
+    const name = document.createElement("strong");
+    name.textContent = item.name;
+    const detail = document.createElement("small");
+    detail.textContent = item.detail || "";
+    node.append(count, name, detail);
+    els.flowLane.appendChild(node);
+  });
+}
+
 function render() {
+  document.body.dataset.mode = state.mode;
   if (state.mode === "progression") renderProgression();
   if (state.mode === "pentatonic") renderPentatonic();
   if (state.mode === "chordtones") renderChordTones();
@@ -675,6 +723,7 @@ function playProgression() {
   const items = currentItems();
   const grips = voiceLeadingGrips(items);
   ensureAudio();
+  document.body.classList.add("is-playing");
   const beat = 60 / Number(els.tempoRange.value);
   const chordSpan = Math.max(0.95, beat * 1.35);
   const start = audioContext.currentTime + 0.05;
@@ -690,6 +739,9 @@ function playProgression() {
       playMidi(midi, start + index * chordSpan + toneIndex * noteDelay, noteDelay * 2.2);
     });
   });
+  transitionTimers.push(setTimeout(() => {
+    document.body.classList.remove("is-playing");
+  }, items.length * chordSpan * 1000 + 450));
 }
 
 function playScaleRun() {
