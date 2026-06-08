@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Free Practice Dashboard | The No-FOMO Trader</title>
+  <meta name="description" content="Free No-FOMO Trader market readiness meter, trade ticket, and trading process tools.">
+  <meta name="theme-color" content="#10251f">
+  <link rel="canonical" href="https://britncguy-dot.github.io/practice-dashboard.html">
+  <meta property="og:title" content="Free No-FOMO Trader Practice Dashboard">
+  <meta property="og:description" content="Use a free readiness meter, trade ticket, and review loop to slow down before chasing trades.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://britncguy-dot.github.io/practice-dashboard.html">
+  <meta name="twitter:card" content="summary">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="index.html">The No-FOMO Trader</a>
+    <nav aria-label="Main navigation">
+      <a href="index.html#meter">Free Meter</a>
+      <a href="index.html#member-tools">Dashboard</a>
+      <a href="today.html">Today</a>
+      <a href="resources.html">Resources</a>
+      <a href="index.html#free-plan">Free Plan</a>
+      <a href="disclaimer.html">Disclaimer</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="member-tools member-page">
+      <section class="market-watch member-market-watch" aria-label="Market watch ticker">
+        <div class="market-watch-label">
+          <span>Market Watch</span>
+          <small>SPY / QQQ / DIA / IWM / VIX. Quotes may be delayed.</small>
+        </div>
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+          {
+            "symbols": [
+              { "proName": "AMEX:SPY", "title": "SPY" },
+              { "proName": "NASDAQ:QQQ", "title": "QQQ" },
+              { "proName": "AMEX:DIA", "title": "DIA" },
+              { "proName": "AMEX:IWM", "title": "IWM" },
+              { "proName": "CBOE:VIX", "title": "VIX" }
+            ],
+            "showSymbolLogo": true,
+            "isTransparent": true,
+            "displayMode": "adaptive",
+            "colorTheme": "dark",
+            "locale": "en"
+          }
+          </script>
+        </div>
+      </section>
+
+      <div class="section-copy">
+        <p class="eyebrow">Free practice dashboard</p>
+        <h1>No-FOMO Practice Dashboard</h1>
+        <p class="lead">
+          A morning workspace for reading conditions, slowing down, choosing one rule, and starting the trading day with a cleaner plan.
+        </p>
+        <p class="preview-note">
+          Free mode: this page is public and open. Any saved check-ins stay on this device. No account, payment, or signup is required.
+        </p>
+      </div>
+
+      <section class="morning-start" aria-label="Morning start routine">
+        <div>
+          <p class="eyebrow">Start here every morning</p>
+          <h2>Five minutes before the market gets loud.</h2>
+          <p>
+            The point is not to predict the day. The point is to get your mind in the right order before the first tempting candle shows up.
+          </p>
+        </div>
+        <ol>
+          <li><span>01</span> Read the broad condition.</li>
+          <li><span>02</span> Run the readiness meter.</li>
+          <li><span>03</span> Accept the Score Coach rule.</li>
+          <li><span>04</span> Write the key level and invalidation.</li>
+          <li><span>05</span> Save the check-in before trading.</li>
+        </ol>
+      </section>
+
+      <section class="index-pulse" aria-label="Main index pulse scores">
+        <div class="panel-top">
+          <span>Index Pulse Board</span>
+          <strong>Interactive Preview</strong>
+        </div>
+        <p class="index-pulse-note">
+          Score the major index tone before hunting setups. This is a manual read tool for now, not a live data calculation.
+        </p>
+        <div class="data-mode-strip" aria-label="Data mode">
+          <div>
+            <span>Data mode</span>
+            <strong>Free watch</strong>
+          </div>
+          <div>
+            <span>Quotes</span>
+            <strong>May be delayed</strong>
+          </div>
+          <div>
+            <span>Pulse score</span>
+            <strong>Manual read</strong>
+          </div>
+        </div>
+        <div class="index-pulse-grid">
+          <article class="index-card" data-index-card data-symbol="SPY">
+            <div class="index-card-top">
+              <span>SPY</span>
+              <strong id="spyPulseScore">63</strong>
+            </div>
+            <svg class="index-spark" viewBox="0 0 180 70" aria-hidden="true">
+              <path class="spark-grid" d="M0 35 H180"></path>
+              <path id="spyPulsePath" class="spark-line" d=""></path>
+            </svg>
+            <div class="index-state">
+              <strong id="spyPulseState">Constructive</strong>
+              <small id="spyPulseSlopeText">Slope +2</small>
+            </div>
+            <label>
+              Slope read
+              <input id="spyPulseSlope" class="index-slope" type="range" min="-5" max="5" value="2" data-symbol="spy">
+            </label>
+          </article>
+
+          <article class="index-card" data-index-card data-symbol="QQQ">
+            <div class="index-card-top">
+              <span>QQQ</span>
+              <strong id="qqqPulseScore">57</strong>
+            </div>
+            <svg class="index-spark" viewBox="0 0 180 70" aria-hidden="true">
+              <path class="spark-grid" d="M0 35 H180"></path>
+              <path id="qqqPulsePath" class="spark-line" d=""></path>
+            </svg>
+            <div class="index-state">
+              <strong id="qqqPulseState">Mixed</strong>
+              <small id="qqqPulseSlopeText">Slope +1</small>
+            </div>
+            <label>
+              Slope read
+              <input id="qqqPulseSlope" class="index-slope" type="range" min="-5" max="5" value="1" data-symbol="qqq">
+            </label>
+          </article>
+
+          <article class="index-card" data-index-card data-symbol="DIA">
+            <div class="index-card-top">
+              <span>DIA</span>
+              <strong id="diaPulseScore">66</strong>
+            </div>
+            <svg class="index-spark" viewBox="0 0 180 70" aria-hidden="true">
+              <path class="spark-grid" d="M0 35 H180"></path>
+              <path id="diaPulsePath" class="spark-line" d=""></path>
+            </svg>
+            <div class="index-state">
+              <strong id="diaPulseState">Constructive</strong>
+              <small id="diaPulseSlopeText">Slope +3</small>
+            </div>
+            <label>
+              Slope read
+              <input id="diaPulseSlope" class="index-slope" type="range" min="-5" max="5" value="3" data-symbol="dia">
+            </label>
+          </article>
+
+          <article class="index-card" data-index-card data-symbol="IWM">
+            <div class="index-card-top">
+              <span>IWM</span>
+              <strong id="iwmPulseScore">42</strong>
+            </div>
+            <svg class="index-spark" viewBox="0 0 180 70" aria-hidden="true">
+              <path class="spark-grid" d="M0 35 H180"></path>
+              <path id="iwmPulsePath" class="spark-line" d=""></path>
+            </svg>
+            <div class="index-state">
+              <strong id="iwmPulseState">Pressure</strong>
+              <small id="iwmPulseSlopeText">Slope -2</small>
+            </div>
+            <label>
+              Slope read
+              <input id="iwmPulseSlope" class="index-slope" type="range" min="-5" max="5" value="-2" data-symbol="iwm">
+            </label>
+          </article>
+        </div>
+      </section>
+
+      <div class="member-meter" aria-label="Practice Market Readiness Meter">
+        <div class="member-meter-output" aria-live="polite">
+          <div class="member-meter-top">
+            <span>Market Readiness Console</span>
+            <strong>Preview</strong>
+          </div>
+          <div class="system-readout">
+            <span>Composite Model</span>
+            <strong id="memberCode">MR-057</strong>
+          </div>
+          <div class="dial-wrap member-dial" aria-hidden="true">
+            <div class="dial-face">
+              <div class="dial-band"></div>
+              <div class="dial-ticks">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <div id="memberNeedle" class="meter-needle"></div>
+              <div class="needle-cap"></div>
+            </div>
+            <div class="dial-labels">
+              <span>Protect</span>
+              <span>Select</span>
+              <span>Ready</span>
+            </div>
+          </div>
+          <div class="meter-score member-score">
+            <span id="memberScore">57</span>
+            <strong id="memberState">Selective: Wait for proof</strong>
+          </div>
+          <div class="meter-gauge member-gauge" aria-hidden="true">
+            <span id="memberFill"></span>
+          </div>
+          <p id="memberGuidance">
+            Conditions are not bad, but the trade still needs a cleaner setup, defined risk, and emotional control.
+          </p>
+          <div class="score-pills">
+            <div>
+              <span>Structure</span>
+              <strong id="structureScore">53</strong>
+            </div>
+            <div>
+              <span>Setup</span>
+              <strong id="setupReadScore">47</strong>
+            </div>
+            <div>
+              <span>Risk Plan</span>
+              <strong id="riskPlanScore">71</strong>
+            </div>
+            <div>
+              <span>Pressure Drag</span>
+              <strong id="pressureScore">48</strong>
+            </div>
+          </div>
+        </div>
+
+        <form class="member-meter-controls">
+          <div class="control-header">
+            <span>Readiness Inputs</span>
+            <strong>Preview Model</strong>
+          </div>
+          <div class="slider-row dark-slider">
+            <label for="marketStructure">Market structure <span id="marketStructureValue">6</span></label>
+            <input id="marketStructure" type="range" min="0" max="10" value="6">
+          </div>
+          <div class="slider-row dark-slider">
+            <label for="levelClarity">Key level clarity <span id="levelClarityValue">4</span></label>
+            <input id="levelClarity" type="range" min="0" max="10" value="4">
+          </div>
+          <div class="slider-row dark-slider">
+            <label for="setupQuality">Setup quality <span id="setupQualityValue">5</span></label>
+            <input id="setupQuality" type="range" min="0" max="10" value="5">
+          </div>
+          <div class="slider-row dark-slider">
+            <label for="riskDefined">Risk defined <span id="riskDefinedValue">7</span></label>
+            <input id="riskDefined" type="range" min="0" max="10" value="7">
+          </div>
+          <div class="slider-row dark-slider">
+            <label for="chasePressure">Chase pressure <span id="chasePressureValue">4</span></label>
+            <input id="chasePressure" type="range" min="0" max="10" value="4">
+          </div>
+          <div class="slider-row dark-slider">
+            <label for="newsPressure">News / volatility pressure <span id="newsPressureValue">6</span></label>
+            <input id="newsPressure" type="range" min="0" max="10" value="6">
+          </div>
+        </form>
+      </div>
+
+      <section class="reference-panel" aria-label="Practice reference ranges">
+        <div class="panel-top">
+          <span>Reference Ranges</span>
+          <strong>Before Entry</strong>
+        </div>
+        <p class="reference-note">
+          Use this like trader lab work. A number can look okay by itself, but the reference range tells whether the condition is healthy enough for a real trade plan.
+        </p>
+        <div class="reference-grid">
+          <article>
+            <div class="reference-head">
+              <span>Market structure</span>
+              <strong id="marketStructureRefValue">6.0</strong>
+            </div>
+            <p>Reference <strong>6.2-10.0</strong></p>
+            <small id="marketStructureRefStatus">Watch: needs cleaner structure</small>
+          </article>
+          <article>
+            <div class="reference-head">
+              <span>Key level clarity</span>
+              <strong id="levelClarityRefValue">4.0</strong>
+            </div>
+            <p>Reference <strong>6.8-10.0</strong></p>
+            <small id="levelClarityRefStatus">Out of range: mark the level first</small>
+          </article>
+          <article>
+            <div class="reference-head">
+              <span>Setup quality</span>
+              <strong id="setupQualityRefValue">5.0</strong>
+            </div>
+            <p>Reference <strong>7.0-10.0</strong></p>
+            <small id="setupQualityRefStatus">Watch: setup has not earned risk</small>
+          </article>
+          <article>
+            <div class="reference-head">
+              <span>Risk defined</span>
+              <strong id="riskDefinedRefValue">7.0</strong>
+            </div>
+            <p>Reference <strong>7.4-10.0</strong></p>
+            <small id="riskDefinedRefStatus">Watch: tighten invalidation</small>
+          </article>
+          <article>
+            <div class="reference-head">
+              <span>Chase pressure</span>
+              <strong id="chasePressureRefValue">4.0</strong>
+            </div>
+            <p>Reference <strong>0.0-3.3</strong></p>
+            <small id="chasePressureRefStatus">Watch: pressure is rising</small>
+          </article>
+          <article>
+            <div class="reference-head">
+              <span>News / volatility</span>
+              <strong id="newsPressureRefValue">6.0</strong>
+            </div>
+            <p>Reference <strong>0.0-4.2</strong></p>
+            <small id="newsPressureRefStatus">Watch: require confirmation</small>
+          </article>
+        </div>
+      </section>
+
+      <section class="score-coach" aria-label="Score coach daily rule">
+        <div class="panel-top">
+          <span>Score Coach Daily Brief</span>
+          <strong id="coachMode">Selective Mode</strong>
+        </div>
+        <div class="coach-layout">
+          <div>
+            <p class="eyebrow">Condition-based rule</p>
+            <h2 id="coachRule">No clean level, no trade.</h2>
+            <p id="coachReason">
+              Key level clarity is out of range. The trade does not deserve attention until the level, invalidation, and risk point are written down.
+            </p>
+          </div>
+          <div class="coach-action-card">
+            <span>Coach Action</span>
+            <strong id="coachAction">Mark the key level before watching entries.</strong>
+            <p id="coachBrief">
+              Consistency comes from matching behavior to conditions. The rule comes from the current score, not from a random motivational note.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="trading-lab" aria-label="Personal trading lab preview">
+        <div class="panel-top">
+          <span>My No-FOMO Lab</span>
+          <strong>Saved On This Device</strong>
+        </div>
+        <div class="lab-intro">
+          <div>
+            <p class="eyebrow">Practice loop</p>
+            <h2>Your progress is the product.</h2>
+            <p>
+              The daily brief gives context. The meter gives a read. The lab gives traders a reason to come back: their own streak, rule focus, and trade discipline history.
+            </p>
+          </div>
+          <div class="lab-summary" aria-label="Personal trading progress summary">
+            <article>
+              <span>Streak</span>
+              <strong id="labStreak">0</strong>
+              <small>days checked in</small>
+            </article>
+            <article>
+              <span>Last Readiness</span>
+              <strong id="labLastReadiness">--</strong>
+              <small>practice meter</small>
+            </article>
+            <article>
+              <span>Rule Focus</span>
+              <strong id="labRuleFocus">Not set</strong>
+              <small>today's discipline</small>
+            </article>
+            <article>
+              <span>Clean Score</span>
+              <strong id="labCleanScore">--</strong>
+              <small>last review</small>
+            </article>
+          </div>
+        </div>
+
+        <div class="lab-workspace">
+          <form class="lab-checkin" data-lab-form>
+            <h3>Daily Check-In</h3>
+            <label>
+              Market read
+              <select id="labMarketRead">
+                <option>Protect capital</option>
+                <option selected>Selective setups only</option>
+                <option>Ready but planned</option>
+              </select>
+            </label>
+            <label>
+              Rule I am practicing
+              <select id="labRule">
+                <option selected>Wait for the pullback</option>
+                <option>Define risk before entry</option>
+                <option>Do not chase the first candle</option>
+                <option>Respect the middle of the range</option>
+                <option>Stop after emotional loss</option>
+              </select>
+            </label>
+            <label>
+              What could make me chase today?
+              <input id="labTrigger" type="text" placeholder="Example: missing the first move">
+            </label>
+            <label>
+              Clean trade score
+              <input id="labScore" type="number" min="0" max="10" value="7">
+            </label>
+            <button class="button primary" type="submit">Save today's check-in</button>
+            <p id="labMessage" class="lab-message">Nothing saved yet. Save a check-in to start the streak.</p>
+          </form>
+
+          <section class="lab-history" aria-label="Recent check-ins">
+            <div class="panel-top">
+              <span>Recent Check-Ins</span>
+              <strong id="labHistoryCount">0 Saved</strong>
+            </div>
+            <div id="labHistoryList" class="lab-history-list">
+              <p>No check-ins yet. The value starts when the trader sees their own pattern.</p>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <div class="member-flow">
+        <article>
+          <span>01</span>
+          <h3>Read Conditions</h3>
+          <p>Decide whether the market is calm, mixed, or pressure-heavy before studying any trade.</p>
+        </article>
+        <article>
+          <span>02</span>
+          <h3>Score The Setup</h3>
+          <p>Check structure, levels, risk, and chase pressure so the trade has to earn attention.</p>
+        </article>
+        <article>
+          <span>03</span>
+          <h3>Build The Ticket</h3>
+          <p>Write the level, invalidation, stop, and reason before the order ticket opens.</p>
+        </article>
+        <article>
+          <span>04</span>
+          <h3>Review Cleanly</h3>
+          <p>Grade the decision after the trade, not just the profit or loss.</p>
+        </article>
+      </div>
+
+      <div class="member-workspace">
+        <section class="prep-ticket" aria-label="Trade readiness ticket">
+          <div class="panel-top">
+            <span>Trade Readiness Ticket</span>
+            <strong id="ticketScore">2 / 7</strong>
+          </div>
+          <div class="ticket-grid">
+            <label>
+              <input class="ticket-check" type="checkbox" checked>
+              Market condition matches the setup
+            </label>
+            <label>
+              <input class="ticket-check" type="checkbox">
+              Key level is written down
+            </label>
+            <label>
+              <input class="ticket-check" type="checkbox" checked>
+              Entry is planned before the candle moves
+            </label>
+            <label>
+              <input class="ticket-check" type="checkbox">
+              Stop is defined before entry
+            </label>
+            <label>
+              <input class="ticket-check" type="checkbox">
+              Target or exit logic is clear
+            </label>
+            <label>
+              <input class="ticket-check" type="checkbox">
+              Risk amount is acceptable
+            </label>
+            <label>
+              <input class="ticket-check" type="checkbox">
+              I am not chasing to feel included
+            </label>
+          </div>
+          <p id="ticketGuidance">Not ready yet. Finish the plan before the trade gets emotional.</p>
+        </section>
+
+        <section class="plan-builder">
+          <div class="panel-top">
+            <span>Plan Builder</span>
+            <strong>Before Entry</strong>
+          </div>
+          <div class="plan-fields">
+            <label>
+              Key level
+              <input type="text" placeholder="Example: prior day high, VWAP, support shelf">
+            </label>
+            <label>
+              Setup I am waiting for
+              <input type="text" placeholder="Example: pullback hold, reclaim, failed breakout">
+            </label>
+            <label>
+              What proves me wrong
+              <input type="text" placeholder="Example: loses level and cannot reclaim">
+            </label>
+          </div>
+        </section>
+
+        <section class="member-brief-card">
+          <div class="panel-top">
+            <span>Daily Brief</span>
+            <strong>Free</strong>
+          </div>
+          <h2>Market conditions decide how aggressive the plan can be.</h2>
+          <div class="brief-chip-row">
+            <span>Condition: Mixed</span>
+            <span>Best behavior: Selective</span>
+            <span>Trap: Forcing the middle</span>
+          </div>
+          <p>
+            The daily brief gives a plain-English read on the environment, the levels that matter, and the emotional trap most likely to cost traders money that day.
+          </p>
+        </section>
+
+        <section class="clean-review-card">
+          <div class="panel-top">
+            <span>Clean Trade Review</span>
+            <strong>After Market</strong>
+          </div>
+          <div class="review-rows">
+            <div><span>Conditions respected</span><strong>0-10</strong></div>
+            <div><span>Setup quality</span><strong>0-10</strong></div>
+            <div><span>Risk control</span><strong>0-10</strong></div>
+            <div><span>No-chase discipline</span><strong>0-10</strong></div>
+          </div>
+          <p>The review rewards process. A losing trade can still be clean. A winning chase can still be a bad decision.</p>
+        </section>
+
+        <section class="member-resource-vault">
+          <div class="panel-top">
+            <span>Free Resource Vault</span>
+            <strong>Open</strong>
+          </div>
+          <div class="vault-grid">
+            <a href="worksheets.html#pre-trade-checklist">SPY / QQQ prep sheet</a>
+            <a href="worksheets.html#setup-quality-score">Setup quality worksheet</a>
+            <a href="worksheets.html#clean-trade-review">Clean trade review</a>
+            <a href="worksheets.html#journal-questions">Journal questions</a>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <strong>The No-FOMO Trader</strong>
+    <p>This newsletter is for education and journaling only. It is not financial advice, trade advice, or a recommendation to buy or sell any security.</p>
+    <div class="footer-links">
+      <a href="index.html">Home</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="disclaimer.html">Disclaimer</a>
+    </div>
+  </footer>
+  <script src="script.js"></script>
+</body>
+</html>

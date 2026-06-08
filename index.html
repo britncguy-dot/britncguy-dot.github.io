@@ -20,15 +20,42 @@
     <nav aria-label="Main navigation">
       <a href="#brief">Brief</a>
       <a href="#meter">Meter</a>
-      <a href="#member-tools">Members</a>
+      <a href="#member-tools">Dashboard</a>
       <a href="today.html">Today</a>
       <a href="resources.html">Resources</a>
-      <a href="#pricing">Pricing</a>
+      <a href="#free-plan">Free Plan</a>
       <a href="disclaimer.html">Disclaimer</a>
     </nav>
   </header>
 
   <main id="top">
+    <section class="market-watch" aria-label="Market watch ticker">
+      <div class="market-watch-label">
+        <span>Market Watch</span>
+        <small>SPY / QQQ / DIA / IWM / VIX. Quotes may be delayed.</small>
+      </div>
+      <div class="tradingview-widget-container">
+        <div class="tradingview-widget-container__widget"></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+        {
+          "symbols": [
+            { "proName": "AMEX:SPY", "title": "SPY" },
+            { "proName": "NASDAQ:QQQ", "title": "QQQ" },
+            { "proName": "AMEX:DIA", "title": "DIA" },
+            { "proName": "AMEX:IWM", "title": "IWM" },
+            { "proName": "CBOE:VIX", "title": "VIX" }
+          ],
+          "showSymbolLogo": true,
+          "isTransparent": true,
+          "displayMode": "adaptive",
+          "colorTheme": "dark",
+          "locale": "en"
+        }
+        </script>
+      </div>
+      <p class="market-watch-footnote">Market watch is for orientation only. Practice scores remain educational tools, not live trade signals.</p>
+    </section>
+
     <section class="hero">
       <div class="hero-copy">
         <p class="eyebrow">A daily anti-chase routine for everyday traders</p>
@@ -38,7 +65,7 @@
         </p>
         <div class="actions">
           <a class="button primary" href="#launch">Start the 14-day No-FOMO Challenge</a>
-          <a class="button secondary" href="member-dashboard.html">Open member dashboard</a>
+          <a class="button secondary" href="practice-dashboard.html">Open practice dashboard</a>
           <a class="button secondary" href="today.html">Read today's brief</a>
         </div>
         <p class="microcopy">The goal is not better predictions. The goal is cleaner decisions before the trade gets emotional.</p>
@@ -85,9 +112,9 @@
     <section id="brief" class="band intro-band">
       <div class="section-copy">
         <p class="eyebrow">The daily promise</p>
-        <h2>Subscribers do not stay for predictions. They stay for process.</h2>
+        <h2>Consistent traders do not start with predictions. They start with conditions.</h2>
         <p>
-          The No-FOMO Trader is built for retail traders who want a calmer learning process. It is not a buy/sell alert service. It is a daily tool that helps traders build the same pre-trade habit every session: context, levels, risk, discipline, and review.
+          The No-FOMO Trader is built around the process disciplined traders return to again and again: read the environment, define the level, define the risk, then act only if the setup earns attention. It is not a buy/sell alert service.
         </p>
       </div>
       <div class="three-column">
@@ -111,7 +138,7 @@
         <p class="eyebrow">Where the value lives</p>
         <h2>A routine people can use every trading day.</h2>
         <p>
-          Market news gets attention, but a repeatable decision process keeps subscribers. The product is the loop: prepare, score, plan, trade less, and review cleanly.
+          Market news gets attention, but a repeatable decision process is what traders can actually practice. The product is the loop: prepare, score, plan, trade less, and review cleanly.
         </p>
       </div>
       <div class="three-column">
@@ -128,7 +155,7 @@
         <article>
           <span class="step-tag">Stay</span>
           <h3>Make progress visible</h3>
-          <p>Members come back for the scorecard, trade ticket, weekly review, and the feeling that their discipline is improving.</p>
+          <p>Traders can come back for the scorecard, trade ticket, weekly review, and the feeling that their discipline is improving.</p>
         </article>
       </div>
     </section>
@@ -157,7 +184,7 @@
         <article>
           <span class="step-tag">03</span>
           <h3>Build The Plan</h3>
-          <p>Use the resources and member preview to define risk before entry.</p>
+          <p>Use the resources and free practice dashboard to define risk before entry.</p>
           <a class="text-link" href="resources.html">Get the worksheets</a>
         </article>
       </div>
@@ -253,7 +280,7 @@
         <p class="eyebrow">Market conditions first</p>
         <h2>A good setup still needs the right environment.</h2>
         <p class="body-large">
-          The No-FOMO process teaches members to judge the market before judging the trade. A clean-looking entry can still be low quality if the broader conditions are messy.
+          The No-FOMO process teaches traders to judge the market before judging the trade. A clean-looking entry can still be low quality if the broader conditions are messy.
         </p>
       </div>
       <div class="condition-board">
@@ -277,15 +304,15 @@
 
     <section id="member-tools" class="member-tools">
       <div class="section-copy">
-        <p class="eyebrow">Paid member preview</p>
-        <h2>Free teaches the habit. Member tools build the process.</h2>
+        <p class="eyebrow">Free practice tools</p>
+        <h2>Free tools build the habit.</h2>
         <p>
-          The free meter helps traders slow down before chasing. The member dashboard preview shows the deeper workflow planned for paid members: market readiness, setup quality, risk planning, and trade review.
+          The free meter helps traders slow down before chasing. The practice dashboard turns the same decision order into a daily routine: conditions, setup quality, risk planning, rule focus, and review.
         </p>
-        <a class="button member-button" href="member-dashboard.html">Open member dashboard</a>
+        <a class="button member-button" href="practice-dashboard.html">Open practice dashboard</a>
       </div>
 
-      <div class="member-meter" aria-label="Member Market Readiness Meter preview">
+      <div class="member-meter" aria-label="Free Market Readiness Meter preview">
         <div class="member-meter-output" aria-live="polite">
           <div class="member-meter-top">
             <span>Market Readiness Console</span>
@@ -395,10 +422,10 @@
 
       <div class="member-retention">
         <div>
-          <p class="eyebrow">Why members return</p>
-          <h3>The member product is a discipline dashboard.</h3>
+          <p class="eyebrow">Daily routine</p>
+          <h3>The free dashboard is a discipline desk.</h3>
           <p>
-            Paid members should feel like they are building a calmer trader identity, not just buying another market opinion.
+            Traders should feel like they are building a calmer process, not chasing another market opinion.
           </p>
         </div>
         <ul>
@@ -411,8 +438,8 @@
 
       <div class="resource-strip">
         <div>
-          <p class="eyebrow">Member downloads</p>
-          <h3>Small resources that make the daily habit easier.</h3>
+          <p class="eyebrow">Free worksheet hub</p>
+          <h3>Browser worksheets that make the daily habit easier.</h3>
         </div>
         <ul>
           <li>Weekly review worksheet</li>
@@ -425,10 +452,10 @@
 
     <section class="clean-review-section">
       <div class="section-copy">
-        <p class="eyebrow">Member feature</p>
+        <p class="eyebrow">Free review tool</p>
         <h2>Clean Trade Review rewards the clearest process.</h2>
         <p>
-          The best trade review is not always the biggest winner. Members will learn to grade the decision: market conditions, setup quality, risk control, and emotional discipline.
+          The best trade review is not always the biggest winner. Traders can learn to grade the decision: market conditions, setup quality, risk control, and emotional discipline.
         </p>
       </div>
       <div class="review-grid">
@@ -447,6 +474,129 @@
         <article>
           <h3>Honest Journal</h3>
           <p>Did the review capture what actually happened, not just whether the trade made money?</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="feature-snapshots">
+      <div class="section-copy">
+        <p class="eyebrow">Feature snapshots</p>
+        <h2>What traders can come back to use.</h2>
+        <p>
+          The free site should feel like a trading desk routine, not just a newsletter. These are the pieces that make the habit visible: read, score, plan, save, review, repeat.
+        </p>
+      </div>
+
+      <div class="snapshot-grid">
+        <article class="snapshot-card">
+          <div class="snapshot-window brief-snapshot" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+            <strong>No-FOMO Rule</strong>
+          </div>
+          <h3>Daily Brief</h3>
+          <p>Plain-English context, SPY / QQQ map, one setup to study, and one rule for the day.</p>
+        </article>
+
+        <article class="snapshot-card">
+          <div class="snapshot-window meter-snapshot" aria-hidden="true">
+            <div></div>
+            <strong>57</strong>
+            <span>Selective</span>
+          </div>
+          <h3>Practice Meter</h3>
+          <p>A fast readiness read that helps traders slow down before the trade gets emotional.</p>
+        </article>
+
+        <article class="snapshot-card">
+          <div class="snapshot-window index-pulse-snapshot" aria-hidden="true">
+            <div><span>SPY</span><strong>63</strong></div>
+            <div><span>QQQ</span><strong>57</strong></div>
+            <div><span>DIA</span><strong>66</strong></div>
+            <div><span>IWM</span><strong>42</strong></div>
+          </div>
+          <h3>Index Pulse Scores</h3>
+          <p>Separate reads for SPY, QQQ, DIA, and IWM help traders see agreement or divergence.</p>
+        </article>
+
+        <article class="snapshot-card">
+          <div class="snapshot-window range-snapshot" aria-hidden="true">
+            <div><span>Structure</span><strong>6.0</strong></div>
+            <div><span>Setup</span><strong>5.0</strong></div>
+            <div><span>Risk</span><strong>7.0</strong></div>
+          </div>
+          <h3>Reference Ranges</h3>
+          <p>Lab-style ranges show whether each category is healthy, watchlist, or out of range.</p>
+        </article>
+
+        <article class="snapshot-card">
+          <div class="snapshot-window coach-snapshot" aria-hidden="true">
+            <span>Score Coach</span>
+            <strong>No clean level, no trade.</strong>
+            <p>Based on key level clarity</p>
+          </div>
+          <h3>Score Coach Rule</h3>
+          <p>The daily rule changes with the score, so the brief coaches the condition that matters most instead of giving generic motivation.</p>
+        </article>
+
+        <article class="snapshot-card">
+          <div class="snapshot-window lab-snapshot" aria-hidden="true">
+            <div><span>Streak</span><strong>4</strong></div>
+            <div><span>Rule</span><strong>Pullback</strong></div>
+            <div><span>Clean</span><strong>8/10</strong></div>
+          </div>
+          <h3>My No-FOMO Lab</h3>
+          <p>Traders can save daily check-ins, rule focus, readiness, and clean-trade history on their own device.</p>
+        </article>
+
+        <article class="snapshot-card">
+          <div class="snapshot-window ticket-snapshot" aria-hidden="true">
+            <label><span></span> Level written</label>
+            <label><span></span> Stop defined</label>
+            <label><span></span> Not chasing</label>
+          </div>
+          <h3>Trade Ticket</h3>
+          <p>A before-entry checklist that forces the trade idea to earn capital.</p>
+        </article>
+
+        <article class="snapshot-card">
+          <div class="snapshot-window worksheet-snapshot" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <h3>Worksheet Hub</h3>
+          <p>Browser worksheets for planning, scoring, review, and journaling without raw text files.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="reviews-section">
+      <div class="section-copy">
+        <p class="eyebrow">Reader feedback</p>
+        <h2>Real feedback will go here after launch.</h2>
+        <p>
+          No fake testimonials. Once readers use the process, this section becomes the proof wall: what helped them slow down, plan better, and review cleaner.
+        </p>
+      </div>
+      <div class="review-capture">
+        <article>
+          <span>Coming Soon</span>
+          <h3>Leave reader feedback</h3>
+          <p>
+            When the feedback form is ready, this will link to a simple review form. Feedback will only be published with permission.
+          </p>
+          <button class="button secondary" type="button" disabled>Review form not live yet</button>
+        </article>
+        <article>
+          <span>What We Will Ask</span>
+          <ul>
+            <li>What feature brought you back?</li>
+            <li>What rule helped you avoid a bad trade?</li>
+            <li>What should be improved next?</li>
+          </ul>
         </article>
       </div>
     </section>
@@ -479,7 +629,7 @@
         <p class="eyebrow">Latest approved brief</p>
         <h2>Strong tape, patient trader.</h2>
         <p>
-          A real approved issue from the Founding Series. The point is not to predict every move. The point is to read conditions, wait for proof, and trade with a cleaner mind.
+          A real approved issue from the free learning series. The point is not to predict every move. The point is to read conditions, wait for proof, and trade with a cleaner mind.
         </p>
         <a class="button secondary" href="today.html">Open the full brief</a>
       </div>
@@ -511,8 +661,8 @@
 
     <section class="founding-series">
       <div>
-        <p class="eyebrow">Founding Series</p>
-        <h2>Launching with 14 focused pre-market briefs.</h2>
+        <p class="eyebrow">Free series</p>
+        <h2>Start with 14 focused pre-market briefs.</h2>
         <p>
           The first two weeks will sharpen the format around the everyday trader: context, levels, one setup, one rule, one journal question.
         </p>
@@ -527,29 +677,30 @@
       </ol>
     </section>
 
-    <section id="pricing" class="band muted">
+    <section id="free-plan" class="band muted">
+      <span id="pricing" class="anchor-alias" aria-hidden="true"></span>
       <div class="section-copy">
-        <p class="eyebrow">Pricing</p>
-        <h2>Free first. Paid only after the rhythm proves useful.</h2>
+        <p class="eyebrow">Free plan</p>
+        <h2>No paywall. No signup required. Just use the routine.</h2>
         <p>
-          The launch starts free so readers can judge the process before paying for it.
+          The site is free so readers can judge the process, practice the tools, and decide whether the No-FOMO routine helps them slow down.
         </p>
       </div>
       <div class="pricing-grid">
         <article>
-          <h3>Free Launch</h3>
+          <h3>Daily Brief</h3>
           <p class="price">$0</p>
-          <p>Fourteen public Founding Series briefs while the format is tested and sharpened.</p>
+          <p>Read the latest No-FOMO brief for market context, levels, one setup to study, and one discipline rule.</p>
         </article>
         <article class="featured">
-          <h3>Founding Member</h3>
-          <p class="price">$50/year</p>
-          <p>Early supporter rate for daily briefs, member meter, trade ticket, weekly scorecard, Clean Trade Review, and member resources.</p>
+          <h3>Practice Dashboard</h3>
+          <p class="price">$0</p>
+          <p>Run the readiness meter, build a trade ticket, and save a check-in on your own device.</p>
         </article>
         <article>
-          <h3>Standard</h3>
-          <p class="price">$7/month</p>
-          <p>Planned after launch. Student, veteran, retiree, and fixed-income rate planned at $4/month.</p>
+          <h3>Worksheets</h3>
+          <p class="price">$0</p>
+          <p>Use the pre-trade checklist, setup score, Clean Trade Review, and journal questions without an account.</p>
         </article>
       </div>
     </section>
@@ -573,12 +724,12 @@
           <p>Everyday traders who want a cleaner morning process and fewer emotional entries.</p>
         </details>
         <details>
-          <summary>When does paid content start?</summary>
-          <p>After the free Founding Series proves useful. The first goal is trust, consistency, and a repeatable format.</p>
+          <summary>Is anything locked behind a paywall?</summary>
+          <p>No. The current No-FOMO site is free. The goal is to get the routine out there and help readers practice better decision-making.</p>
         </details>
         <details>
-          <summary>Do you offer refunds?</summary>
-          <p>When paid memberships open, first-time subscribers can request a refund within 7 days of payment. After that, members can cancel anytime to stop future renewals. Billing errors or duplicate charges will be handled fairly.</p>
+          <summary>Do I need an account?</summary>
+          <p>No. The tools work in the browser. Any saved check-ins stay on the reader's own device.</p>
         </details>
       </div>
     </section>
@@ -588,18 +739,14 @@
         <p class="eyebrow">Start here</p>
         <h2>Start the 14-day No-FOMO Challenge.</h2>
         <p>
-          The first offer should be simple: one short daily brief, one meter check, and one discipline action for 14 trading days. That gives readers a reason to return before paid membership opens.
+          Start with one short daily brief, one meter check, and one discipline action for 14 trading days. The goal is to practice calm decision-making before the chart gets emotional.
         </p>
       </div>
-      <form class="launch-form" data-signup-form>
-        <label for="launchEmail">Email address</label>
-        <div>
-          <input id="launchEmail" name="email" type="email" placeholder="you@example.com" autocomplete="email">
-          <button class="button primary" type="submit">Request launch notice</button>
-        </div>
-        <p data-signup-message>The email platform is being connected. Until then, use the free brief and resources below.</p>
+      <div class="launch-form">
+        <a class="button primary" href="today.html">Read today's brief</a>
+        <a class="button secondary" href="practice-dashboard.html">Open practice dashboard</a>
         <a class="text-link" href="resources.html">View free resources</a>
-      </form>
+      </div>
     </section>
   </main>
 
