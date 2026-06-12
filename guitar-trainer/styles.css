@@ -280,6 +280,33 @@ p {
   font-weight: 800;
 }
 
+.proof-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+  color: var(--green);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.proof-row span {
+  position: relative;
+  padding-left: 16px;
+}
+
+.proof-row span::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  transform: translateY(-50%);
+}
+
 .access-card {
   display: grid;
   gap: 10px;
@@ -298,6 +325,45 @@ p {
 
 body.has-access .access-card .script-badge {
   background: var(--green);
+}
+
+.value-band,
+.faq-band {
+  width: calc(100% - 32px);
+  max-width: 1232px;
+  margin: 16px auto 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(25, 29, 30, .82);
+  box-shadow: var(--shadow-tight);
+}
+
+.value-band {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+}
+
+.value-band article {
+  display: grid;
+  gap: 10px;
+  padding: 18px;
+  background:
+    linear-gradient(135deg, rgba(143, 199, 255, .08), transparent 42%),
+    rgba(255, 255, 255, .025);
+}
+
+.value-band h2,
+.faq-band h2 {
+  font-size: clamp(22px, 2.5vw, 32px);
+  line-height: 1.08;
+}
+
+.value-band p,
+.faq-band p {
+  color: var(--muted);
+  line-height: 1.45;
 }
 
 .control-rail,
@@ -1344,6 +1410,30 @@ body.is-demo .premium-feature::after {
   pointer-events: none;
 }
 
+.faq-band {
+  display: grid;
+  grid-template-columns: minmax(220px, 320px) minmax(0, 1fr);
+  gap: 18px;
+  padding: 22px;
+  margin-bottom: 16px;
+}
+
+.faq-list {
+  display: grid;
+  gap: 10px;
+}
+
+.faq-list article {
+  padding: 16px;
+  border: 1px solid rgba(248, 242, 231, .12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .035);
+}
+
+.faq-list h3 {
+  margin: 0 0 6px;
+}
+
 .triad-clip {
   display: grid;
   gap: 10px;
@@ -2002,9 +2092,11 @@ code {
   .access-band,
   .practice-header,
   .tutorial-band,
+  .value-band,
   .practice-lab-band,
   .development-band,
   .contact-band,
+  .faq-band,
   .triad-demo-band,
   .pricing-band {
     align-items: stretch;
@@ -2016,9 +2108,11 @@ code {
   .control-rail,
   .progress-panel,
   .tutorial-band,
+  .value-band,
   .practice-lab-band,
   .development-band,
   .contact-band,
+  .faq-band,
   .triad-demo-band,
   .pricing-band,
   .practice-rail {
