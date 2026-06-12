@@ -2512,6 +2512,23 @@ footer p {
   text-decoration: none;
 }
 
+.support-note {
+  margin-top: 28px;
+  padding: 24px;
+  border: 1px solid rgba(23, 64, 51, .16);
+  background: rgba(255, 255, 255, .72);
+}
+
+.support-note h2 {
+  max-width: 680px;
+  margin-bottom: 10px;
+  font-size: 28px;
+}
+
+.support-note p:not(.eyebrow) {
+  max-width: 760px;
+}
+
 .legal-page {
   max-width: 940px;
   min-height: calc(100vh - 180px);
