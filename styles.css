@@ -75,6 +75,14 @@ nav a {
   text-decoration: none;
 }
 
+.nav-support {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #f4c542;
+  color: var(--green-dark);
+  font-weight: 900;
+}
+
 .market-watch {
   display: grid;
   grid-template-columns: 250px minmax(0, 1fr);
@@ -251,6 +259,11 @@ h4 {
 .button.secondary {
   background: rgba(251, 250, 244, .76);
   color: var(--green);
+}
+
+.button.support-button {
+  background: #f4c542;
+  color: var(--green-dark);
 }
 
 .button.disabled {
