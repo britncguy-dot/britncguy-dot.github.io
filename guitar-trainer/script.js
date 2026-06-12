@@ -254,10 +254,24 @@ function clearAccessAttempts() {
   saveAccessAttempts({ count: 0, lockedUntil: 0 });
 }
 
+function isOwnerLocalCopy() {
+  return ["file:", "http:"].includes(window.location.protocol)
+    && ["", "localhost", "127.0.0.1"].includes(window.location.hostname);
+}
+
 async function loadAccess() {
   const params = new URLSearchParams(window.location.search);
   if (params.get("demo") === "1") {
     accessUnlocked = false;
+    return;
+  }
+  if (isOwnerLocalCopy()) {
+    accessUnlocked = true;
+    try {
+      localStorage.setItem(ACCESS_KEY, "unlocked");
+    } catch {
+      // Local owner access still works for this visit.
+    }
     return;
   }
   try {
@@ -1348,7 +1362,7 @@ function renderContactLink() {
   if (!CONFIG.contactEmail) {
     els.contactEmailLink.removeAttribute("href");
     els.contactEmailLink.setAttribute("aria-disabled", "true");
-    els.contactEmailStatus.textContent = "Add a public support email before publishing this contact link.";
+    els.contactEmailStatus.textContent = "Send trainer questions and feature wishes to the FretFlow inbox.";
     return;
   }
   const subject = encodeURIComponent("FretFlow Trainer question or feature idea");
