@@ -380,10 +380,7 @@ body.has-access .access-card .script-badge {
 }
 
 .control-rail {
-  max-height: calc(100vh - 98px);
-  overflow-y: auto;
-  padding-right: 2px;
-  scrollbar-width: thin;
+  overflow: visible;
 }
 
 .mode-tabs {
@@ -1709,7 +1706,6 @@ code {
   }
 }
 
-.control-rail,
 .practice-rail {
   position: sticky;
   top: 84px;
