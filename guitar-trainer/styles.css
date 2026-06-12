@@ -220,11 +220,7 @@ p {
 }
 
 .trainer-shell {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  justify-content: center;
-  align-items: start;
-  gap: 16px;
+  display: block;
   max-width: 1232px;
   margin: 0 auto;
   padding: 16px 16px 10px;
@@ -380,14 +376,21 @@ body.has-access .access-card .script-badge {
 }
 
 .control-rail {
-  grid-template-columns: repeat(3, minmax(220px, 1fr));
+  grid-template-columns: repeat(2, minmax(280px, 1fr));
   align-items: stretch;
+  margin-bottom: 16px;
+  max-height: none !important;
   overflow: visible;
+  overflow-y: visible !important;
 }
 
 .control-rail .mode-tabs {
   grid-column: 1 / -1;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.control-rail * {
+  max-height: none !important;
 }
 
 .mode-tabs {
@@ -2066,13 +2069,11 @@ code {
 
 @media (max-width: 1320px) {
   .trainer-shell {
-    grid-template-columns: minmax(0, 1fr);
-    justify-content: center;
     max-width: 1232px;
   }
 
   .control-rail {
-    grid-template-columns: repeat(3, minmax(220px, 1fr));
+    grid-template-columns: repeat(2, minmax(280px, 1fr));
   }
 
   .practice-rail {
