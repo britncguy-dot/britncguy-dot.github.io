@@ -1,7 +1,8 @@
 const CONFIG = {
-  paymentUrl: "https://brittle342.gumroad.com/l/fretflow-trainer",
+  paymentUrl: "",
   contactEmail: "fretflowtrainer@outlook.com",
-  priceLabel: "$9",
+  priceLabel: "Free through Labor Day",
+  freeAccessUntil: "2026-09-07T23:59:59-04:00",
   accessSalt: "fretflow-2026-founding-gate-v1",
   accessDigest: [
     "8a40f825d358b4a44594515b5380133e",
@@ -70,6 +71,16 @@ const CHORD_BLOCKS = {
   low: { label: "Low block", short: "Low", min: 0, max: 4, center: 2 },
   middle: { label: "Middle block", short: "Middle", min: 3, max: 7, center: 5 },
   high: { label: "High block", short: "High", min: 6, max: 10, center: 8 },
+};
+const CHORD_WALK_RANGES = {
+  open: { label: "Open position", short: "Open", min: 0, max: 4, center: 2 },
+  low: CHORD_BLOCKS.low,
+  middle: CHORD_BLOCKS.middle,
+  high: CHORD_BLOCKS.high,
+};
+const CHORD_WALK_PATHS = {
+  diatonic: { label: "Key notes" },
+  chromatic: { label: "Chromatic" },
 };
 const PROGRESSION_PRESETS = [
   { id: "gospel", label: "1 6m 4 5", value: "1 6m 4 5", daily: "Say: 1 major, 6 minor, 4 major, 5 major." },
@@ -159,6 +170,17 @@ const els = {
   chordTriviaFeedback: document.getElementById("chordTriviaFeedback"),
   nextChordTrivia: document.getElementById("nextChordTrivia"),
   advancedProgressions: document.getElementById("advancedProgressions"),
+  chordWalkProgression: document.getElementById("chordWalkProgression"),
+  chordWalkMeter: document.getElementById("chordWalkMeter"),
+  chordWalkPattern: document.getElementById("chordWalkPattern"),
+  chordWalkPath: document.getElementById("chordWalkPath"),
+  chordWalkRange: document.getElementById("chordWalkRange"),
+  chordWalkTransitions: document.getElementById("chordWalkTransitions"),
+  buildChordWalk: document.getElementById("buildChordWalk"),
+  playChordWalkPanel: document.getElementById("playChordWalkPanel"),
+  chordWalkHint: document.getElementById("chordWalkHint"),
+  startChordWalk: document.getElementById("startChordWalk"),
+  playChordWalkLab: document.getElementById("playChordWalkLab"),
   contactEmailLink: document.getElementById("contactEmailLink"),
   contactEmailStatus: document.getElementById("contactEmailStatus"),
 };
@@ -177,6 +199,12 @@ let state = {
   box: "0",
   chordRoot: "G",
   chordQuality: "maj",
+  chordWalkProgression: "G Em C D",
+  chordWalkMeter: "4/4",
+  chordWalkPattern: "auto",
+  chordWalkPath: "diatonic",
+  chordWalkRange: "open",
+  chordWalkActiveMoves: [],
 };
 let audioContext;
 let transitionTimers = [];
@@ -187,7 +215,7 @@ let labState = {
 };
 
 function normalizeMode(mode, allowLab = false) {
-  const modes = allowLab ? ["progression", "pentatonic", "chordtones", "notefinder"] : ["progression", "pentatonic", "chordtones"];
+  const modes = allowLab ? ["progression", "chordwalk", "pentatonic", "chordtones", "notefinder"] : ["progression", "chordwalk", "pentatonic", "chordtones"];
   return modes.includes(mode) ? mode : "progression";
 }
 
@@ -259,10 +287,23 @@ function isOwnerLocalCopy() {
     && ["", "localhost", "127.0.0.1"].includes(window.location.hostname);
 }
 
+function isFreeAccessActive() {
+  return Date.now() <= new Date(CONFIG.freeAccessUntil).getTime();
+}
+
 async function loadAccess() {
   const params = new URLSearchParams(window.location.search);
   if (params.get("demo") === "1") {
     accessUnlocked = false;
+    return;
+  }
+  if (isFreeAccessActive()) {
+    accessUnlocked = true;
+    try {
+      localStorage.setItem(ACCESS_KEY, "unlocked");
+    } catch {
+      // Free access still works for this visit.
+    }
     return;
   }
   if (isOwnerLocalCopy()) {
@@ -309,7 +350,7 @@ async function unlockAccess(code, showMessage = true) {
 }
 
 function hasPremiumAccess() {
-  return accessUnlocked;
+  return accessUnlocked || isFreeAccessActive();
 }
 
 function enforceDemoState() {
@@ -322,7 +363,7 @@ function enforceDemoState() {
 }
 
 function showAccessPrompt(feature = "the full trainer") {
-  if (els.accessHelp) els.accessHelp.textContent = `Founding access unlocks ${feature}.`;
+  if (els.accessHelp) els.accessHelp.textContent = `Free summer access unlocks ${feature}.`;
   document.getElementById("access")?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
@@ -620,6 +661,7 @@ function chordIntervals(quality) {
 
 function currentItems() {
   if (state.mode === "progression") return parseProgression(state.progression);
+  if (state.mode === "chordwalk") return chordWalkItems();
   if (state.mode === "chordtones") {
     const rootMidi = 60 + noteIndex(state.chordRoot);
     return [{ token: state.chordRoot, name: chordName(state.chordRoot, state.chordQuality), rootMidi, rootName: state.chordRoot, quality: state.chordQuality, detail: chordQualityLabel(state.chordQuality) }];
@@ -660,6 +702,132 @@ function scaleToneMidis() {
 
 function currentBlock() {
   return CHORD_BLOCKS[state.progressionBlock] || CHORD_BLOCKS.middle;
+}
+
+function currentChordWalkRange() {
+  return CHORD_WALK_RANGES[state.chordWalkRange] || CHORD_WALK_RANGES.open;
+}
+
+function currentChordWalkPath() {
+  return CHORD_WALK_PATHS[state.chordWalkPath] || CHORD_WALK_PATHS.diatonic;
+}
+
+function chordWalkChords() {
+  return parseProgression(state.chordWalkProgression || "G Em C D");
+}
+
+function chordWalkTransitionKeys(chords = chordWalkChords()) {
+  return chords.slice(0, -1).map((_, index) => String(index));
+}
+
+function activeChordWalkMoveSet(chords = chordWalkChords()) {
+  const keys = chordWalkTransitionKeys(chords);
+  if (!Array.isArray(state.chordWalkActiveMoves) || !state.chordWalkActiveMoves.length) return new Set(keys);
+  return new Set(state.chordWalkActiveMoves.filter(key => keys.includes(String(key))).map(String));
+}
+
+function nearestTargetMidi(fromMidi, toMidi) {
+  let target = toMidi;
+  while (target - fromMidi > 6) target -= 12;
+  while (target - fromMidi < -6) target += 12;
+  return target;
+}
+
+function keyScaleClasses() {
+  return SCALE_INTERVALS.majorScale.map(interval => mod(keyRootMidi() + interval, 12));
+}
+
+function nextKeyNote(midi, direction) {
+  if (state.chordWalkPath === "chromatic") return midi + direction;
+  const classes = keyScaleClasses();
+  let candidate = midi + direction;
+  for (let tries = 0; tries < 12; tries += 1) {
+    if (classes.includes(mod(candidate, 12))) return candidate;
+    candidate += direction;
+  }
+  return midi + direction;
+}
+
+function transitionWalkMidis(from, to) {
+  const source = from.rootMidi;
+  const target = nearestTargetMidi(source, to.rootMidi);
+  const direction = target >= source ? 1 : -1;
+  if (Math.abs(target - source) <= 1) return [];
+  const notes = [];
+  let candidate = nextKeyNote(source, direction);
+  while ((direction > 0 && candidate < target) || (direction < 0 && candidate > target)) {
+    notes.push(candidate);
+    candidate = nextKeyNote(candidate, direction);
+  }
+  if (!notes.length) notes.push(target - direction);
+  if (state.chordWalkPattern === "one") return notes.slice(-1);
+  if (state.chordWalkPattern === "two") return notes.slice(-2);
+  return notes.slice(-2);
+}
+
+function chordWalkItems() {
+  const chords = chordWalkChords();
+  const activeMoves = activeChordWalkMoveSet(chords);
+  const items = [];
+  chords.forEach((chord, index) => {
+    const nextChord = chords[index + 1];
+    const walkMidis = nextChord && activeMoves.has(String(index)) ? transitionWalkMidis(chord, nextChord) : [];
+    const chordCount = state.chordWalkMeter === "3/4"
+      ? walkMidis.length ? "1-2" : "1-2-3"
+      : walkMidis.length > 1 ? "1-2" : walkMidis.length ? "1-2-3" : "1-2-3-4";
+    items.push({
+      ...chord,
+      kind: "chord",
+      count: chordCount,
+      detail: "Chord notes",
+    });
+    if (!nextChord || !walkMidis.length) return;
+    walkMidis.forEach((midi, walkIndex, walkNotes) => {
+      const beat = state.chordWalkMeter === "3/4"
+        ? "3"
+        : walkNotes.length === 1
+          ? "4"
+          : String(3 + walkIndex);
+      items.push({
+        token: noteName(midi),
+        name: noteName(midi),
+        rootMidi: midi,
+        rootName: noteName(midi),
+        quality: "maj",
+        kind: "walk",
+        count: beat,
+        targetName: nextChord.name,
+        detail: `Bass note into ${nextChord.name}`,
+      });
+    });
+  });
+  return items;
+}
+
+function chordWalkInstruction(item, grip) {
+  if (item.kind === "walk") return `Play the bass note ${item.name}, then land on ${item.targetName}.`;
+  return `Hold ${item.name}: ${gripSummary(grip)}. Notice the chord notes before the bass walk.`;
+}
+
+function bassPositionForMidi(midi, range = currentChordWalkRange()) {
+  const pitch = mod(midi, 12);
+  const strings = selectedStringObjectsLowToHigh();
+  const candidates = [];
+  strings.forEach((string, stringIndex) => {
+    for (let fret = 0; fret <= Math.min(MAX_FRET, Math.max(range.max, 7)); fret += 1) {
+      const noteMidi = string.midi + fret;
+      if (mod(noteMidi, 12) === pitch) {
+        const inRange = fret >= range.min && fret <= Math.max(range.max, 4);
+        candidates.push({ string, fret, midi: noteMidi, stringIndex, score: (inRange ? 0 : 20) + fret + stringIndex * 2 });
+      }
+    }
+  });
+  const best = candidates.sort((a, b) => a.score - b.score)[0];
+  return best ? [positionFromMidi(best.string, best.fret, best.midi, "bass", pitch, true)] : [];
+}
+
+function beatCountFromLabel(label) {
+  return Math.max(1, String(label || "1").split("-").filter(Boolean).length);
 }
 
 function selectedStringObjects() {
@@ -946,6 +1114,49 @@ function renderProgression() {
   renderLesson([`Block: ${block.label}`, `Only: fretted notes`, `Next: slow move to nearest grip`]);
 }
 
+function renderChordWalk() {
+  const items = chordWalkItems();
+  if (!items.length) {
+    drawFretboard([]);
+    setHeader("Chord walk trainer", "Type a progression");
+    setNow("No chords yet", "Try G Em C D");
+    renderQueue([]);
+    renderFlowLane([], 0, "Chord walk");
+    renderLegend(["Gold = chord root", "Green = chord note", "Blue = walk bass note"]);
+    renderLesson(["Next: Type a progression like G Em C D"]);
+    return;
+  }
+  const range = currentChordWalkRange();
+  state.stepIndex = Math.min(state.stepIndex, items.length - 1);
+  const item = items[state.stepIndex];
+  const chordItems = items.filter(entry => entry.kind === "chord");
+  const grips = voiceLeadingGrips(chordItems, range);
+  const chordPosition = chordItems.indexOf(item);
+  const suggested = item.kind === "chord" && chordPosition >= 0 ? grips[chordPosition] || {} : {};
+  const positions = item.kind === "walk"
+    ? bassPositionForMidi(item.rootMidi, range)
+    : positionsFromGrip(item, suggested, "chord");
+  drawFretboard(positions);
+  const chords = chordWalkChords();
+  setHeader("Chord walk trainer", `${state.chordWalkMeter}: ${chords.map(chord => chord.name).join(" - ")}`);
+  setNow(
+    item.kind === "walk" ? `Walk: ${item.name}` : item.name,
+    item.kind === "walk"
+      ? `${range.short}: bass note into ${item.targetName}`
+      : `${range.short}: ${gripSummary(suggested)} | ${toneLabelHeading()}: ${gripToneLabels(item, suggested)}`
+  );
+  renderQueue(items.map((entry, index) => ({
+    ...entry,
+    detail: entry.kind === "walk" ? entry.detail : "Chord notes",
+  })));
+  renderFlowLane(items.map((entry, index) => ({
+    ...entry,
+    detail: entry.kind === "walk" ? entry.detail : "Chord notes",
+  })), state.stepIndex, "Chord walk");
+  renderLegend(["Gold = chord root", "Green = chord note", "Blue = walk bass note", labelLegend()]);
+  renderLesson([`Range: ${range.label}`, `Path: ${currentChordWalkPath().label}`, `Do: ${chordWalkInstruction(item, suggested)}`]);
+}
+
 function renderPentatonic() {
   const toneMidis = scaleToneMidis();
   const classes = toneMidis.map(midi => mod(midi, 12));
@@ -1035,10 +1246,10 @@ function renderQueue(items) {
   els.practiceQueue.innerHTML = "";
   items.forEach((item, index) => {
     const li = document.createElement("li");
-    if (state.mode === "progression" && index === state.stepIndex) li.classList.add("active");
+    if (["progression", "chordwalk"].includes(state.mode) && index === state.stepIndex) li.classList.add("active");
     li.innerHTML = `<span>${index + 1}</span><div><strong>${item.name}</strong><small>${item.detail || ""}</small></div>`;
     li.addEventListener("click", () => {
-      if (state.mode === "progression") {
+      if (["progression", "chordwalk"].includes(state.mode)) {
         state.stepIndex = index;
         render();
       }
@@ -1076,14 +1287,14 @@ function renderFlowLane(items, activeIndex, label, variant = "") {
   laneLabel.textContent = label;
   els.flowLane.appendChild(laneLabel);
   items.forEach((item, index) => {
-    const node = document.createElement(state.mode === "progression" ? "button" : "span");
+    const node = document.createElement(["progression", "chordwalk"].includes(state.mode) ? "button" : "span");
     node.className = "flow-node";
     if (variant === "tone-map") {
       const toneClass = degreeClassName(item.count);
       if (toneClass) node.classList.add(toneClass);
     }
     if (Number.isInteger(activeIndex) && index === activeIndex) node.classList.add("active");
-    if (state.mode === "progression" && index < activeIndex) node.classList.add("complete");
+    if (["progression", "chordwalk"].includes(state.mode) && index < activeIndex) node.classList.add("complete");
     if (node.tagName === "BUTTON") {
       node.type = "button";
       node.addEventListener("click", () => {
@@ -1109,15 +1320,15 @@ function applyAccessState() {
   const unlocked = hasPremiumAccess();
   document.body.classList.toggle("has-access", unlocked);
   document.body.classList.toggle("is-demo", !unlocked);
-  if (els.accessStatus) els.accessStatus.textContent = unlocked ? "Full access" : "Demo mode";
+  if (els.accessStatus) els.accessStatus.textContent = isFreeAccessActive() ? "Free access" : unlocked ? "Full access" : "Demo mode";
   if (els.accessCode) {
     els.accessCode.disabled = unlocked;
-    els.accessCode.placeholder = unlocked ? "Full trainer unlocked" : "Enter access code";
+    els.accessCode.placeholder = isFreeAccessActive() ? "Free through Labor Day" : unlocked ? "Full trainer unlocked" : "Enter access code";
   }
   els.modeTabs.forEach(tab => {
     const locked = !unlocked && tab.dataset.mode !== "progression";
     tab.disabled = locked;
-    tab.title = locked ? "Founding access unlocks this mode." : "";
+    tab.title = locked ? "Free summer access unlocks this mode." : "";
   });
   els.keySelect.disabled = !unlocked;
   els.customProgression.disabled = !unlocked;
@@ -1128,10 +1339,18 @@ function applyAccessState() {
   els.chordRoot.disabled = !unlocked;
   els.chordQuality.disabled = !unlocked;
   els.playChord.disabled = !unlocked;
+  if (els.chordWalkProgression) els.chordWalkProgression.disabled = !unlocked;
+  if (els.chordWalkMeter) els.chordWalkMeter.disabled = !unlocked;
+  if (els.chordWalkPattern) els.chordWalkPattern.disabled = !unlocked;
+  if (els.chordWalkPath) els.chordWalkPath.disabled = !unlocked;
+  if (els.chordWalkRange) els.chordWalkRange.disabled = !unlocked;
+  if (els.buildChordWalk) els.buildChordWalk.disabled = !unlocked;
+  if (els.playChordWalkPanel) els.playChordWalkPanel.disabled = !unlocked;
+  els.chordWalkTransitions?.querySelectorAll("input").forEach(input => { input.disabled = !unlocked; });
   els.blockButtons.forEach(button => {
     const locked = !unlocked && button.dataset.progressionBlock !== DEMO_SETTINGS.progressionBlock;
     button.disabled = locked;
-    button.title = locked ? "Founding access unlocks low and high chord blocks." : "";
+    button.title = locked ? "Free summer access unlocks low and high chord blocks." : "";
   });
   els.stringSet.querySelectorAll("input").forEach(input => {
     input.disabled = !unlocked;
@@ -1140,7 +1359,7 @@ function applyAccessState() {
   [...els.progressionPresets.children].forEach(button => {
     const locked = !unlocked && button.dataset.preset !== DEMO_SETTINGS.presetId;
     button.disabled = locked;
-    button.title = locked ? "Founding access unlocks more progressions and custom songs." : "";
+    button.title = locked ? "Free summer access unlocks more progressions and custom songs." : "";
   });
   document.querySelectorAll("#practice-lab button, #practice-lab input, #practice-lab select").forEach(control => {
     control.disabled = !unlocked;
@@ -1156,6 +1375,7 @@ function render() {
   applyAccessState();
   document.body.dataset.mode = state.mode;
   if (state.mode === "progression") renderProgression();
+  if (state.mode === "chordwalk") renderChordWalk();
   if (state.mode === "pentatonic") renderPentatonic();
   if (state.mode === "chordtones") renderChordTones();
   if (state.mode === "notefinder") renderNoteFinder();
@@ -1174,6 +1394,14 @@ function playCurrent() {
   if (state.mode === "progression") {
     const items = currentItems();
     const grips = voiceLeadingGrips(items);
+    const grip = grips[state.stepIndex] || {};
+    const midis = gripMidis(grip);
+    playMidiSet(midis.length ? midis : chordToneMidis(items[state.stepIndex] || items[0]), 0.12);
+    return;
+  }
+  if (state.mode === "chordwalk") {
+    const items = currentItems();
+    const grips = voiceLeadingGrips(items, currentChordWalkRange());
     const grip = grips[state.stepIndex] || {};
     const midis = gripMidis(grip);
     playMidiSet(midis.length ? midis : chordToneMidis(items[state.stepIndex] || items[0]), 0.12);
@@ -1207,6 +1435,46 @@ function playProgression() {
   transitionTimers.push(setTimeout(() => {
     document.body.classList.remove("is-playing");
   }, items.length * chordSpan * 1000 + 450));
+}
+
+function playChordWalk() {
+  clearTransitionTimers();
+  const items = chordWalkItems();
+  const chordItems = items.filter(item => item.kind === "chord");
+  const grips = voiceLeadingGrips(chordItems, currentChordWalkRange());
+  ensureAudio();
+  document.body.classList.add("is-playing");
+  const beat = 60 / Number(els.tempoRange.value);
+  const start = audioContext.currentTime + 0.05;
+  let cursorBeats = 0;
+  items.forEach((item, index) => {
+    const itemBeats = beatCountFromLabel(item.count);
+    const itemStart = cursorBeats * beat;
+    transitionTimers.push(setTimeout(() => {
+      state.stepIndex = index;
+      render();
+    }, itemStart * 1000));
+    if (item.kind === "walk") {
+      playMidi(item.rootMidi, start + itemStart, beat * 0.55);
+      cursorBeats += itemBeats;
+      return;
+    }
+    const chordPosition = chordItems.indexOf(item);
+    const voiceMidis = gripMidis(grips[chordPosition] || {});
+    const midis = voiceMidis.length ? voiceMidis : chordToneMidis(item);
+    const noteDelay = Math.min(0.08, beat / Math.max(midis.length + 2, 3));
+    for (let beatIndex = 0; beatIndex < itemBeats; beatIndex += 1) {
+      midis.forEach((midi, toneIndex) => playMidi(
+        midi,
+        start + itemStart + beatIndex * beat + toneIndex * noteDelay,
+        Math.min(beat * 0.62, noteDelay * 3.2)
+      ));
+    }
+    cursorBeats += itemBeats;
+  });
+  transitionTimers.push(setTimeout(() => {
+    document.body.classList.remove("is-playing");
+  }, cursorBeats * beat * 1000 + 450));
 }
 
 function playScaleRun() {
@@ -1313,9 +1581,42 @@ function renderLab() {
   if (!els.noteFinderTarget || !els.chordTriviaChoices) return;
   els.noteFinderTarget.textContent = `Find ${labState.noteTarget}`;
   els.noteFinderHint.textContent = `Find every ${labState.noteTarget} on the active strings. Start slow and say the string name out loud.`;
+  if (els.chordWalkHint) {
+    const chords = chordWalkChords();
+    els.chordWalkHint.textContent = chords.length > 1
+      ? `${chords.map(chord => chord.name).join(" - ")}. Choose which changes get a bass walk.`
+      : "Put in a progression, pick the chord changes to walk, then see chord notes and the bass note that connects them.";
+  }
   renderChordTrivia();
   renderAdvancedProgressions();
   renderContactLink();
+}
+
+function renderChordWalkTransitions() {
+  if (!els.chordWalkTransitions) return;
+  const chords = chordWalkChords();
+  const activeMoves = activeChordWalkMoveSet(chords);
+  els.chordWalkTransitions.innerHTML = "";
+  if (chords.length < 2) {
+    els.chordWalkTransitions.textContent = "Add at least two chords to choose a walk.";
+    return;
+  }
+  chords.slice(0, -1).forEach((chord, index) => {
+    const nextChord = chords[index + 1];
+    const label = document.createElement("label");
+    label.innerHTML = `<input type="checkbox" value="${index}"> ${chord.name} to ${nextChord.name}`;
+    const input = label.querySelector("input");
+    input.checked = activeMoves.has(String(index));
+    input.addEventListener("change", () => {
+      const checked = [...els.chordWalkTransitions.querySelectorAll("input:checked")].map(item => item.value);
+      const all = chordWalkTransitionKeys(chords);
+      state.chordWalkActiveMoves = checked.length === all.length ? [] : checked;
+      state.stepIndex = 0;
+      renderLab();
+      if (state.mode === "chordwalk") render();
+    });
+    els.chordWalkTransitions.appendChild(label);
+  });
 }
 
 function renderChordTrivia() {
@@ -1379,6 +1680,15 @@ function nextNoteTarget() {
   if (state.mode === "notefinder") render();
 }
 
+function openChordWalk() {
+  if (!guardPremium("chord walk practice")) return;
+  if (els.chordWalkProgression) state.chordWalkProgression = els.chordWalkProgression.value || state.chordWalkProgression;
+  setMode("chordwalk");
+  renderChordWalkTransitions();
+  render();
+  document.getElementById("trainer")?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 function syncModeControls() {
   state.mode = normalizeMode(state.mode, true);
   els.modeTabs.forEach(tab => {
@@ -1404,6 +1714,12 @@ function loadState() {
     if (!LABEL_MODE_NAMES[state.labelMode]) state.labelMode = "notes";
     if (!SCALE_INTERVALS[state.scaleType]) state.scaleType = "minorPentatonic";
     if (!CHORD_BLOCKS[state.progressionBlock]) state.progressionBlock = "middle";
+    if (!CHORD_WALK_PATHS[state.chordWalkPath]) state.chordWalkPath = "diatonic";
+    if (!CHORD_WALK_RANGES[state.chordWalkRange]) state.chordWalkRange = "open";
+    if (!["4/4", "3/4"].includes(state.chordWalkMeter)) state.chordWalkMeter = "4/4";
+    if (!["auto", "one", "two"].includes(state.chordWalkPattern)) state.chordWalkPattern = "auto";
+    if (!Array.isArray(state.chordWalkActiveMoves)) state.chordWalkActiveMoves = [];
+    if (!state.chordWalkProgression) state.chordWalkProgression = "G Em C D";
     state.progression = state.progression.replace(/\b([b#]?[1-7])7\b/g, "$1dom7");
   } catch {
     state = { ...state };
@@ -1468,6 +1784,11 @@ function hydrateControls() {
   els.boxSelect.value = state.box;
   els.chordRoot.value = state.chordRoot;
   els.chordQuality.value = state.chordQuality;
+  if (els.chordWalkProgression) els.chordWalkProgression.value = state.chordWalkProgression;
+  if (els.chordWalkMeter) els.chordWalkMeter.value = state.chordWalkMeter;
+  if (els.chordWalkPattern) els.chordWalkPattern.value = state.chordWalkPattern;
+  if (els.chordWalkPath) els.chordWalkPath.value = state.chordWalkPath;
+  if (els.chordWalkRange) els.chordWalkRange.value = state.chordWalkRange;
   els.labelButtons.forEach(button => {
     button.classList.toggle("active", button.dataset.labelMode === state.labelMode);
   });
@@ -1485,6 +1806,7 @@ function hydrateControls() {
     // Leave defaults.
   }
   updateChecks();
+  renderChordWalkTransitions();
   renderLab();
 }
 
@@ -1539,6 +1861,50 @@ function bindEvents() {
   els.boxSelect.addEventListener("change", () => { if (!guardPremium("all scale boxes")) return; clearTransitionTimers(); state.box = els.boxSelect.value; render(); });
   els.chordRoot.addEventListener("change", () => { if (!guardPremium("any chord root")) return; clearTransitionTimers(); state.chordRoot = els.chordRoot.value; render(); });
   els.chordQuality.addEventListener("change", () => { if (!guardPremium("advanced chord types")) return; clearTransitionTimers(); state.chordQuality = els.chordQuality.value; render(); });
+  els.chordWalkProgression?.addEventListener("input", () => {
+    if (!guardPremium("chord walk practice")) return;
+    clearTransitionTimers();
+    state.chordWalkProgression = els.chordWalkProgression.value || "G Em C D";
+    state.chordWalkActiveMoves = [];
+    state.stepIndex = 0;
+    renderChordWalkTransitions();
+    renderLab();
+    if (state.mode === "chordwalk") render();
+  });
+  els.chordWalkMeter?.addEventListener("change", () => {
+    if (!guardPremium("chord walk practice")) return;
+    clearTransitionTimers();
+    state.chordWalkMeter = els.chordWalkMeter.value;
+    renderLab();
+    if (state.mode === "chordwalk") render();
+  });
+  els.chordWalkPattern?.addEventListener("change", () => {
+    if (!guardPremium("chord walk practice")) return;
+    clearTransitionTimers();
+    state.chordWalkPattern = els.chordWalkPattern.value;
+    renderLab();
+    if (state.mode === "chordwalk") render();
+  });
+  els.chordWalkPath?.addEventListener("change", () => {
+    if (!guardPremium("chord walk practice")) return;
+    clearTransitionTimers();
+    state.chordWalkPath = els.chordWalkPath.value;
+    renderLab();
+    if (state.mode === "chordwalk") render();
+  });
+  els.chordWalkRange?.addEventListener("change", () => {
+    if (!guardPremium("chord walk practice")) return;
+    clearTransitionTimers();
+    state.chordWalkRange = els.chordWalkRange.value;
+    renderLab();
+    if (state.mode === "chordwalk") render();
+  });
+  els.buildChordWalk?.addEventListener("click", () => openChordWalk());
+  els.playChordWalkPanel?.addEventListener("click", () => {
+    if (!guardPremium("chord walk playback")) return;
+    openChordWalk();
+    playChordWalk();
+  });
   els.previousButton.addEventListener("click", () => {
     clearTransitionTimers();
     const items = currentItems();
@@ -1553,6 +1919,7 @@ function bindEvents() {
   });
   els.playButton.addEventListener("click", () => {
     if (state.mode === "progression") playProgression();
+    else if (state.mode === "chordwalk") playChordWalk();
     else playCurrent();
   });
   els.playScale.addEventListener("click", () => { if (guardPremium("scale playback")) playScaleRun(); });
@@ -1565,6 +1932,12 @@ function bindEvents() {
     if (!guardPremium("note finder training")) return;
     setMode("notefinder");
     render();
+  });
+  els.startChordWalk?.addEventListener("click", () => openChordWalk());
+  els.playChordWalkLab?.addEventListener("click", () => {
+    if (!guardPremium("chord walk playback")) return;
+    openChordWalk();
+    playChordWalk();
   });
   els.nextChordTrivia?.addEventListener("click", () => {
     if (!guardPremium("chord naming games")) return;
@@ -1592,7 +1965,7 @@ function bindEvents() {
   els.buyAccessButton?.addEventListener("click", () => {
     if (CONFIG.paymentUrl) window.location.href = CONFIG.paymentUrl;
   });
-  els.buyButton.addEventListener("click", () => {
+  els.buyButton?.addEventListener("click", () => {
     if (CONFIG.paymentUrl) {
       window.location.href = CONFIG.paymentUrl;
       return;

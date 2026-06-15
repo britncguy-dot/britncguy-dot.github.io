@@ -43,6 +43,17 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+.trainer-page .access-band,
+.trainer-page .value-band,
+.trainer-page .tutorial-band,
+.trainer-page .triad-demo-band,
+.trainer-page .pricing-band,
+.trainer-page .development-band,
+.trainer-page .contact-band,
+.trainer-page .faq-band {
+  display: none;
+}
+
 body::before {
   content: "";
   position: fixed;
@@ -226,6 +237,40 @@ p {
   padding: 16px 16px 10px;
 }
 
+.summer-pass-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  width: calc(100% - 32px);
+  max-width: 1232px;
+  margin: 14px auto 0;
+  padding: 10px 14px;
+  border: 1px solid rgba(138, 223, 186, .34);
+  border-radius: 8px;
+  color: var(--ink);
+  background:
+    linear-gradient(90deg, rgba(138, 223, 186, .18), rgba(242, 198, 109, .12)),
+    rgba(12, 15, 16, .76);
+  box-shadow: var(--shadow-tight);
+}
+
+.summer-pass-banner span,
+.summer-pass-banner a {
+  padding: 6px 8px;
+  border-radius: 8px;
+  color: #15120a;
+  background: var(--green);
+  font-size: 13px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.summer-pass-banner strong {
+  font-size: 14px;
+}
+
 .access-band {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
@@ -386,7 +431,7 @@ body.has-access .access-card .script-badge {
 
 .control-rail .mode-tabs {
   grid-column: 1 / -1;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .control-rail * {
@@ -808,6 +853,10 @@ select:disabled {
   background: var(--green);
 }
 
+.note-dot.bass {
+  background: var(--blue);
+}
+
 .note-dot.blue-note {
   background: var(--violet);
 }
@@ -1029,7 +1078,7 @@ body.is-demo .premium-feature::after {
 
 .practice-queue li {
   display: grid;
-  grid-template-columns: 34px 1fr;
+  grid-template-columns: minmax(48px, auto) 1fr;
   gap: 8px;
   align-items: center;
   min-height: 50px;
@@ -1044,12 +1093,16 @@ body.is-demo .premium-feature::after {
 .practice-queue span {
   display: grid;
   place-items: center;
-  width: 34px;
+  min-width: 34px;
   height: 34px;
+  padding: 0 8px;
   border-radius: 8px;
   color: #101314;
   background: var(--gold);
+  font-size: 13px;
   font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .check-list {
@@ -1388,6 +1441,32 @@ body.is-demo .premium-feature::after {
   color: #101314;
   background: var(--red);
   border-color: transparent;
+}
+
+.transition-picks {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.transition-picks label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .04);
+  color: rgba(248, 242, 231, .86);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.transition-picks input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--gold);
 }
 
 .lab-feedback {
@@ -1850,7 +1929,7 @@ code {
 
 .flow-node {
   display: grid;
-  grid-template-columns: 30px 1fr;
+  grid-template-columns: minmax(42px, auto) 1fr;
   grid-template-rows: auto auto;
   gap: 2px 8px;
   align-content: center;
@@ -1887,13 +1966,17 @@ code {
   display: grid;
   grid-row: 1 / span 2;
   place-items: center;
-  width: 30px;
+  min-width: 30px;
   height: 30px;
+  padding: 0 7px;
   align-self: center;
-  border-radius: 50%;
+  border-radius: 999px;
   color: #101314;
   background: var(--blue);
+  font-size: 12px;
   font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .flow-node.complete .flow-count {
@@ -2129,6 +2212,11 @@ code {
 
   .trainer-shell {
     padding: 16px 10px;
+  }
+
+  .summer-pass-banner {
+    width: calc(100% - 20px);
+    justify-content: flex-start;
   }
 
   .topbar {
